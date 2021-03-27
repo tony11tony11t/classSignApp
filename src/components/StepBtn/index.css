@@ -1,0 +1,13 @@
+.StepBtnWrap button{
+    width: 90%;
+    background-color: #FFDC5F;
+    margin: auto;
+    position: absolute;
+    bottom: 1rem;
+    left: 5%;
+    font-size: 1rem;
+    border-radius: .5rem;
+    border: none;
+    padding: .5rem;
+    font-weight: 600;
+}

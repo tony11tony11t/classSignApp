@@ -1,0 +1,37 @@
+.signInStepWrap{
+    text-align: start;
+    margin-top: 1rem;
+    position: relative;
+}
+.signInStepWrap div{
+    background-repeat: none;
+    background-size: 100% 100%;
+    display: inline-block;
+    height: 2.5rem;
+    width: 10%;
+    vertical-align: top;
+    text-align: center;
+    position: relative;
+}
+.signInStepWrap div.Active{
+    width: 60%;
+}
+.signInStepWrap div.Step1{
+    background-image: url('./img/index_loadingbar_start_now.png');
+}
+.signInStepWrap div.Step2,
+.signInStepWrap div.Step3,
+.signInStepWrap div.Step4{
+    background-image: url('./img/index_loadingbar_mid_no.png');
+}
+.signInStepWrap div.Step5{
+    background-image: url('./img/index_loadingbar_end_no.png');
+}
+.signInStepWrap div p{
+    top: 50%;
+    position: relative;
+    transform: translateY(-50%);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}

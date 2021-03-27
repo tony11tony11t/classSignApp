@@ -1,0 +1,23 @@
+.signInContainer{
+    margin: auto;
+    width: 425px;
+    height: 500px;
+    text-align: center;
+    position: relative;
+    transform: translateY(-50%);
+    top: 50%;
+}
+.signInContainer .signInWrap{
+    height: 400px;
+    position: relative;
+    border-radius: .5rem;
+    background-color: #FFFFFF;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
+}
+.signInContainer .signInWrap h1{
+    font-size: 1.4rem;
+    padding: .3rem 0;
+    background-color: #FFDC5F;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
+}
