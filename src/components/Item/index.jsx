@@ -4,14 +4,14 @@ import './index.css'
 export default class Item extends Component {
 
     handleClick = () =>{
-        const {fnSelect,name} = this.props;
-        fnSelect(name);
+        const {fnSelect,id,children} = this.props;
+        fnSelect(id != undefined ? id : children);
     }
 
     render() {
-        const {name} = this.props;
+        const {name , children} = this.props;
         return (
-            <li className='signInItem' onClick={this.handleClick}>{name}</li>
+            <li className='signInItem' onClick={this.handleClick}>{name ? name : children}</li>
         )
     }
 }

@@ -32,11 +32,17 @@
     box-shadow: rgba(0, 0, 0, 0.2) 3px 3px 10px;
     background-color: white;
     color: #BDBDBD;
+    height: 50px;
 }
 .signInContainer .signInWrap button.finish{
     background-color: #BDF3A9;
     color: #399F13;
     font-weight: 600;
+}
+.signInContainer .signInWrap button.inactivated{
+    box-shadow: none;
+    background-color: #E7E7E7;
+    color: #BBBABA;
 }
 .signInContainer .signInWrap button:focus{
     outline: none;
