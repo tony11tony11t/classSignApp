@@ -1,0 +1,12 @@
+.signInGroupsList{
+    margin: 1rem 0;
+}
+.signInStudentsList{
+    margin: 1rem 15%;
+}
+.signInGroupsList .group{
+    background-color: #FFEEB2;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: rgba(0, 0, 0, 0.2) 1px 1px 8px;
+}

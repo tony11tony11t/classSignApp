@@ -15,6 +15,10 @@ export default class ClassroomList extends Component {
         const {classrooms} = this.state;
         this.props.fnGetClassroom(classrooms.find(classroom => classroom.id == id));
     }
+    isSelected = id => {
+        const {selectClassroom} = this.props;
+        return selectClassroom && (selectClassroom.id == id)
+    }
 
     render() {
         const {classrooms} = this.state;
@@ -22,7 +26,10 @@ export default class ClassroomList extends Component {
             <ul className='signInList'>
             {
                 classrooms.map( i => 
-                    <Item {...i} fnSelect={this.handleSelect}/>
+                    <Item {...i}
+                          type='classroom' 
+                          selected={this.isSelected(i.id)}
+                          fnSelect={this.handleSelect} />
                 )
             }
             </ul>

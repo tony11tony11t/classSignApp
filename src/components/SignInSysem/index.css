@@ -21,6 +21,13 @@
     border-top-left-radius: .5rem;
     border-top-right-radius: .5rem;
 }
+.signInContainer .signInWrap form{
+    height: calc(100% - 7.5rem);
+}
+.signInContainer .signInWrap form .signInFormWrap{
+    height: 100%;
+    overflow: auto;
+}
 .signInContainer .signInWrap button{
     display: block;
     margin: 1rem auto;
@@ -32,11 +39,24 @@
     box-shadow: rgba(0, 0, 0, 0.2) 3px 3px 10px;
     background-color: white;
     color: #BDBDBD;
-    height: 50px;
+    min-height: 2.5rem;
+    cursor: pointer;
+}
+.signInContainer .signInWrap button.submit{
+    position: absolute;
+    bottom: 1rem;
+    width: 40%;
+    left: 30%;
+    box-shadow: none;
+    background-color: #FFDC5F;
+    color: black;
+    font-weight: 600;
+    margin: auto;
+    box-shadow: rgba(0, 0, 0, 0.2) 3px 3px 10px;
 }
 .signInContainer .signInWrap button.finish{
-    background-color: #BDF3A9;
     color: #399F13;
+    background-color: white;
     font-weight: 600;
 }
 .signInContainer .signInWrap button.inactivated{
@@ -46,14 +66,4 @@
 }
 .signInContainer .signInWrap button:focus{
     outline: none;
-}
-.signInContainer .signInWrap button.submit{
-    position: absolute;
-    bottom: .5rem;
-    width: 40%;
-    left: 30%;
-    box-shadow: none;
-    background-color: #E7E7E7;
-    color: #BBBABA;
-    font-weight: 600;
 }

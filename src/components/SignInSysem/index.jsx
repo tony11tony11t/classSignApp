@@ -2,29 +2,20 @@ import React, { Component } from 'react'
 import ClassroomList from '../ClassroomList'
 import ClassList from '../ClassList'
 import DatePicker from '../DatePicker'
-import Item from '../Item'
+import StudentList from '../StudentList'
 import './index.css'
 
 export default class SignInSystem extends Component {
 
     state = {
-        students:[
-            {id:0,name:'1王小名',group:1},
-            {id:1,name:'1王小名',group:1},
-            {id:2,name:'1王小名',group:1},
-            {id:3,name:'2王小名',group:2},
-            {id:4,name:'2王小名',group:2},
-            {id:5,name:'2王小名',group:2},
-            {id:6,name:'3王小名',group:3},
-            {id:7,name:'3王小名',group:3}
-        ],
         showDatePicker : false,
         showClassroomList : false,
         showClassType : false,
+        showStudent : false,
         myOptions:{
             classroom:null,
             group:null,
-            student:null,
+            students:null,
             classType:null,
             date:{
                 year:null,
@@ -53,35 +44,124 @@ export default class SignInSystem extends Component {
 
     getDate = date => this.setState({myOptions:{...this.state.myOptions , date}});
 
-    getClassroom = classroom => this.setState({myOptions:{...this.state.myOptions , classroom}});
+    getClassroom = classroom => {
+        this.setState({myOptions:{...this.state.myOptions , classroom , classType:null}});
+        this.handleSelectClassroom();
+    }
     
-    getClass = classType => this.setState({myOptions:{...this.state.myOptions , classType}})
+    getClass = classType => {
+        this.setState({myOptions:{...this.state.myOptions , classType}});
+        this.handleSelectClass();
+    }
+    
+    getStudents = student => {
+        const {myOptions} = this.state;
+        const {students} = myOptions;
+        if(students){
+            let listStudent = [...students].find(s => s.id == student.id)
+            if(listStudent){
+                students.delete(listStudent);
+                if(students.size == 0){
+                    this.setState({myOptions:{...myOptions , students:null}});
+                    return;
+                }
+            }else{
+                students.add(student);
+            }
+            this.setState({myOptions:{...myOptions , students}});
+        }else{
+            this.setState({myOptions:{...myOptions , students:new Set([student])}});
+        }
+    }
 
     handleSelectDate = () => this.setState({showDatePicker : !this.state.showDatePicker});
+    handleSelectClassroom = () => this.setState({showClassroomList : !this.state.showClassroomList});
+    handleSelectClass = () => this.setState({showClassType : !this.state.showClassType});
+    handleSelectStudent = () => this.setState({showStudent : !this.state.showStudent});
 
-    handleSelectClassRoom = () => this.setState({showClassroomList : !this.state.showClassroomList});
-    
-    handleSelectClass =() => this.setState({showClassType : !this.state.showClassType});
+    handleSubmit = () => {
+        const {date,classroom,classType,students} = this.state.myOptions;
+        console.log("點名成功");
+    }
     
     isFinish = type => this.state.myOptions[type] ? 'finish' : '';
 
+    showStudentList = students => [...students].map(student =>(
+                                <>
+                                    {`${student.name}`}
+                                    <br/>
+                                </>
+                            ));
+    getSubmitBtn = () => {
+        const {date,classroom,classType,students} = this.state.myOptions;
+        let attr = {
+            type : 'button',
+            className : 'submit inactivated',
+            onclick : null
+        }
+        if(date && classroom && classType && students){
+            attr = {
+                ...attr ,
+                className : 'submit',
+                onClick : this.handleSubmit
+            };
+        }
+        return <button {...attr}>點名</button>
+    }
+    
+
     render() {
-        const {date,classroom,classType} = this.state.myOptions;
-        const {showDatePicker,showClassroomList,showClassType} = this.state;
+        const {date,classroom,classType,students} = this.state.myOptions;
+        const {showDatePicker,showClassroomList,showClassType,showStudent} = this.state;
+        let classRoomInfo = {
+            normal : classroom && classroom.normal,
+            special : classroom && classroom.special,
+        }
         return (
             <div className='signInContainer'>
                 <div className='signInWrap'>
                     <h1>簽到系統</h1>
                     
                     <form>
-                        <button className={this.isFinish('date')} type='button' onClick={this.handleSelectDate}>{`${date.year}-${date.month}-${date.day}`}</button>
-                        {showDatePicker ? <DatePicker fnGetDate={this.getDate} date={date}/> : null}
-                        <button className={this.isFinish('classroom')} type='button' onClick={this.handleSelectClassRoom}>{classroom ? classroom.name : '選擇教室'}</button>
-                        {showClassroomList ? <ClassroomList fnGetClassroom={this.getClassroom} fnShowClass={this.showClass}/> : null}
-                        <button className={`${classroom ? '' : 'inactivated'} ${this.isFinish('classType')}`} type='button' onClick={classroom ? this.handleSelectClass : null}>{classType ? classType : '選擇課程'}</button>
-                        {showClassType ? <ClassList fnGetClass={this.getClass} normal={classroom.normal} special={classroom.special}/> : null}
-                        <button type='button'>選擇學員</button>
-                        <button className='submit'>點名</button>
+                        <div className='signInFormWrap'>
+                            <button className={this.isFinish('date')} type='button' onClick={this.handleSelectDate}>
+                                {`${date.year}-${date.month}-${date.day}`}
+                            </button>
+                            {showDatePicker ? 
+                                <DatePicker fnGetDate={this.getDate} 
+                                            date={date}/> 
+                                : null
+                            }
+
+                            <button className={this.isFinish('classroom')} type='button' onClick={this.handleSelectClassroom}>
+                                {classroom ? classroom.name : '選擇教室'}
+                            </button>
+                            {showClassroomList ? 
+                                <ClassroomList fnGetClassroom={this.getClassroom} 
+                                               selectClassroom={classroom} /> 
+                                : null
+                            }
+                            
+                            <button className={`${classroom ? '' : 'inactivated'} ${this.isFinish('classType')}`} type='button' onClick={classroom ? this.handleSelectClass : null}>
+                                {classType ? classType : '選擇課程'}
+                            </button>
+                            {showClassType ? 
+                                <ClassList {...classRoomInfo}
+                                           fnGetClass = {this.getClass} 
+                                           selectClassType = {classType} /> 
+                                : null
+                            }
+                            
+                            <button className={this.isFinish('students')} type='button' onClick={this.handleSelectStudent}>
+                                {students ? this.showStudentList(students) : '選擇學員'}
+                            </button>
+                            {showStudent ? 
+                                <StudentList fnGetStudents = {this.getStudents} 
+                                             selectStudent = {students} />
+                                : null
+                            }
+                        </div>
+                        {this.getSubmitBtn()}
                     </form>
                 </div>
             </div>
