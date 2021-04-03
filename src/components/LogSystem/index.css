@@ -1,0 +1,14 @@
+.LogContainer{
+    margin: auto ;
+    width: 90%;
+    height: 90%;
+    position: relative;
+}
+.LogContainer h3{
+    margin: 0 0 .5rem 0;
+}
+.LogContainer .LogWrap{
+    height: 95%;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
+    border-radius: .5rem;
+}

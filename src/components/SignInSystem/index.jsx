@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import ClassroomList from '../ClassroomList'
-import ClassList from '../ClassList'
+import ClassroomList from './components/ClassroomList'
+import ClassList from './components/ClassList'
 import DatePicker from '../DatePicker'
-import StudentList from '../StudentList'
+import StudentList from './components/StudentList'
 import './index.css'
 
 export default class SignInSystem extends Component {
@@ -119,9 +119,8 @@ export default class SignInSystem extends Component {
         }
         return (
             <div className='signInContainer'>
+                <h3>簽到系統</h3>
                 <div className='signInWrap'>
-                    <h1>簽到系統</h1>
-                    
                     <form>
                         <div className='signInFormWrap'>
                             <button className={this.isFinish('date')} type='button' onClick={this.handleSelectDate}>

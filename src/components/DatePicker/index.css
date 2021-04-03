@@ -1,5 +1,6 @@
 .DatePicker-wrap{
     margin: 0 1rem;
+    text-align: center;
 }
 .DatePicker-weekdays{
     display: flex;

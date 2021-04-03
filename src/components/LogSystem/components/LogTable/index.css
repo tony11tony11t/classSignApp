@@ -1,0 +1,21 @@
+.LogTable{
+    table-layout: fixed;
+    width: 100%;
+    text-align: center;
+    font-size: .8rem;
+}
+.LogTable td{
+    padding: .4rem 0;
+}
+.LogTable .SignInLog{
+    background-color: #fff8e0;
+}
+.LogTable th{
+    padding: .5rem 0;
+}
+.LogTable .DateDivide{
+    text-align: left;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    padding: .5rem 0 .5rem .5rem;
+}
