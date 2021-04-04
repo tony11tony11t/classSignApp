@@ -4,8 +4,26 @@
     height: 90%;
     position: relative;
 }
-.GroupContainer h3{
-    margin: 0 0 .5rem 0;
+.GroupContainer .GroupHeader{
+    height: 1.5rem;
+    position: relative;
+    margin-bottom: .5rem;
+}
+.GroupContainer .GroupHeader h3{
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+.GroupContainer .GroupHeader .SubNavbar{
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    position: absolute;
+    right: 0;
+}
+.GroupContainer .GroupHeader .SubNavbar img{
+    height: 100%;
+    margin: 0 .5rem;
 }
 .GroupContainer .GroupWrap{
     height: 95%;

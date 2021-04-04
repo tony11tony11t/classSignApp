@@ -1,0 +1,28 @@
+.Info{
+    font-size: .8rem;
+    overflow: auto;
+    height: 90%;
+}
+.Info table{
+    table-layout: fixed;
+    width: 100%;
+}
+.Info td{
+    padding: .4rem 0;
+    border-bottom: 1px solid #ebedee;
+    vertical-align: text-top;
+}
+.Info .signInLog{
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 80%;
+    margin: 1rem 10%;
+    background: white;
+    border-radius: .5rem;
+    padding: .4rem 0;
+    box-shadow: rgba(0,0,0,0.2) 2px 2px 8px;
+}
+.Info .signInLog:focus{
+    outline: none;
+}

@@ -9,6 +9,10 @@
 }
 .GroupTable .Student{
     background-color: #fff8e0;
+    cursor: pointer;
+}
+.GroupTable .Student td{
+    border-bottom: 2px solid white;
 }
 .GroupTable th{
     padding: .5rem 0;

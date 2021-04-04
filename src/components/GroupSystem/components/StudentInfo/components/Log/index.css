@@ -1,0 +1,51 @@
+.MyLogContainer{
+    height: calc(100% - 1.5rem - .8rem);
+}
+.MyLogTableWrap{
+    height: 80%;
+    overflow: auto;
+}
+.MyLogTable{
+    font-size: .8rem;
+    table-layout: fixed;
+    width: 100%;
+    text-align: center;
+}
+.MyLogTable th{
+    border-bottom: 1px solid #dddddd;
+    border-top: 1px solid #dddddd;
+    padding: .4rem 0;
+    position: sticky;
+    top: 0;
+    background-color: #fff8e0;
+}
+.MyLogTable th.type{
+    width: 20%;
+}
+.MyLogTable td{
+    padding: .4rem 0;
+}
+.MyLogTotalWrap{
+    display: flex;
+    position: absolute;
+    width: calc(100% - 1.6rem);
+    bottom: .5rem;
+    background-color: #FFDC5F;
+    border-radius: .5rem;
+}
+.MyLogTotalWrap div{
+    flex: 1;
+    text-align: center;
+    border-right: 2px solid white;
+}
+.MyLogTotalWrap div:last-of-type{
+    border-right: none;
+}
+
+.MyLogTotalWrap div p{
+    margin:.5rem 0;
+    font-size: .8rem;
+}
+.MyLogTotalWrap div p:first-child{
+    font-weight: 600;
+}

@@ -9,9 +9,9 @@ export default class StudentTable extends Component {
             </tr>
         )
     }
-    getStudent = (name,total,norNum,speNum,money) => {
+    getStudent = (id,name,total,norNum,speNum,money) => {
         return (
-            <tr className="Student" onClick={this.handleStudentClick}>
+            <tr className="Student" onClick={this.handleStudentClick.bind(this,id)}>
                 <td>{name}</td>
                 <td>{total}</td>
                 <td>{norNum}</td>
@@ -20,9 +20,8 @@ export default class StudentTable extends Component {
             </tr>
         )
     }
-    handleStudentClick = () => {
-        console.log("123");
-    }
+    handleStudentClick = (id) => this.props.showStudent(id);
+    
     render() {
         return (
             <table className="GroupTable" border="0" cellspacing="0" cellpadding="0">
@@ -37,13 +36,13 @@ export default class StudentTable extends Component {
                 </thead>
                 <tbody>
                     {this.getGroupRow("第一組")}
-                    {this.getStudent("唐嘉駿",1000,50,50,"否")}
-                    {this.getStudent("唐嘉駿",100,50,50,"否")}
-                    {this.getStudent("唐嘉駿",100,50,50,"否")}
-                    {this.getStudent("唐嘉駿",100,50,50,"否")}
+                    {this.getStudent(0,"唐嘉駿",1000,50,50,"否")}
+                    {this.getStudent(1,"唐嘉駿",100,50,50,"否")}
+                    {this.getStudent(2,"唐嘉駿",100,50,50,"否")}
+                    {this.getStudent(3,"唐嘉駿",100,50,50,"否")}
                     {this.getGroupRow("第二組")}
-                    {this.getStudent("唐嘉駿",100,50,50,"否")}
-                    {this.getStudent("唐嘉駿",100,50,50,"否")}
+                    {this.getStudent(4,"唐嘉駿",100,50,50,"否")}
+                    {this.getStudent(5,"唐嘉駿",100,50,50,"否")}
                 </tbody>
             </table>
         )
