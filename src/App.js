@@ -3,13 +3,14 @@ import Footer from './components/Footer';
 import SignInSystem from './components/SignInSystem'
 import LogSystem from './components/LogSystem'
 import GroupSystem from './components/GroupSystem'
+import ClassroomSystem from './components/ClassroomSystem'
 
 import React, { Component } from 'react'
 
 export default class App extends Component {
 
   state = {
-    system : "group" // "group"|"log"|"signIn"|"class"|"user"
+    system : "class" // "group"|"log"|"signIn"|"class"|"user"
   }
 
   changeSystem = (system) => this.setState({system});
@@ -22,6 +23,8 @@ export default class App extends Component {
         return <LogSystem />
       case 'group':
         return <GroupSystem />
+      case 'class':
+        return <ClassroomSystem />
     }
     return system
   }
@@ -31,7 +34,7 @@ export default class App extends Component {
     return (
       <>
       {this.getPageComponent(system)}
-      <Footer changePage={this.changeSystem}/>
+      <Footer changePage={this.changeSystem} system={system}/>
       </>
     );
   }

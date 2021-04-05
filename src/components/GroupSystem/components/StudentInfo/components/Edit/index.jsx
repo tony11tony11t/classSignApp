@@ -46,7 +46,7 @@ export default class Edit extends Component {
                         <label for="payMoney">使用付費教室</label>
                         <fieldset id="payMoney">
                             <input type="radio" id="yes" name="payMoney" value="yes"/>
-                            <label for="yes">是</label>
+                            <label for="yes">是</label><br/>
                             <input type="radio" id="no" name="payMoney" value="no"/>
                             <label for="no">否</label>
                         </fieldset>
@@ -57,7 +57,11 @@ export default class Edit extends Component {
                         <input type="text" name="reason"></input>
                     </div>
 
-                    <button type="button" className="subbmit">儲存</button>
+                    <div className="btnGroup">
+                        <button type="button" className="remove">刪除</button>
+                        <button type="button" className="submit">儲存</button>
+                    </div>
+
 
                 </form>
             </div>

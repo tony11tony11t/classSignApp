@@ -23,9 +23,13 @@
 .EditContainer form fieldset{
     flex: 1.5;
     border: none;
-    display: flex;
+    display: block;
     padding: 0;
 }
+.EditContainer form .btnGroup{
+    display: flex;
+}
+
 .EditContainer form .submit,
 .EditContainer form .remove{
     flex: 1;
