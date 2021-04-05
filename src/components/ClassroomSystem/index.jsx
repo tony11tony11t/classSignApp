@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import ClassroomTable from './components/ClassroomTable'
+import Table from '../Table';
 import ClassroomInfo from './components/ClassroomInfo'
+import signInAPI from '../../signInAPI'
 import './index.css'
 
 export default class ClassroomSystem extends Component {
@@ -18,11 +19,15 @@ export default class ClassroomSystem extends Component {
     }
 
     getContent = () => {
+        const signIn = new signInAPI();
         const {pageClassroomInfo} = this.state;
         if(pageClassroomInfo){
             return <ClassroomInfo back={this.showIndex}/>
         }else{
-            return <ClassroomTable showClassroom={this.showClassroom}/>
+            return <Table rowData={signIn.getClassroomRowData()} 
+                          fields={signIn.getClassroomHeadFields()} 
+                          className="ClassroomTable"
+                          showInfo={this.showClassroom}/>
         }
     }
 
@@ -37,7 +42,7 @@ export default class ClassroomSystem extends Component {
         return (
             <div className='ClassroomContainer'>
                 <div className="ClassroomHeader">
-                    <h3>學員管理</h3>
+                    <h3>教室管理</h3>
                     <div class="SubNavbar">
                         {
                             this.showAddBtn()

@@ -30,3 +30,18 @@
     box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
     border-radius: .5rem;
 }
+
+
+
+.ClassroomTable thead tr th.type{
+    width: 30%;
+}
+.ClassroomTable thead tr th.money{
+    width: 25%;
+}
+.ClassroomTable td{
+    border-top: 2px solid white;
+}
+.ClassroomTable .Row{
+    background-color: #fff8e0;
+}

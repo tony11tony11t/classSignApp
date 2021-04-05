@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import './index.css'
-import StudentTable from './components/StudentsTable'
+import Table from '../Table';
 import Search from './components/Search'
 import StudentInfo from './components/StudentInfo'
+import signInAPI from '../../signInAPI'
+
 
 export default class GroupSystem extends Component {
+    
     state = {
         pageStudentInfo:false
     }
 
     showStudent = (id) => {
+        console.log(id);
         this.setState({pageStudentInfo:true});
     }
 
@@ -18,6 +22,7 @@ export default class GroupSystem extends Component {
     }
 
     getContent = () => {
+        const signIn = new signInAPI();
         const {pageStudentInfo} = this.state;
         if(pageStudentInfo){
             return <StudentInfo back={this.showIndex}/>
@@ -25,7 +30,10 @@ export default class GroupSystem extends Component {
             return (
                 <>
                 <Search />
-                <StudentTable showStudent={this.showStudent}/>
+                <Table rowData={signIn.getGroupRowData()} 
+                       fields={signIn.getGroupHeadFields()} 
+                       className="GroupTable"
+                       showInfo={this.showStudent}/>
                 </>
             )
         }

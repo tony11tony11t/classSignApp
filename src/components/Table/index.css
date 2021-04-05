@@ -1,19 +1,19 @@
-.LogTable{
+.Table{
     table-layout: fixed;
     width: 100%;
     text-align: center;
     font-size: .8rem;
 }
-.LogTable td{
+.Table td{
     padding: .4rem 0;
 }
-.LogTable .SignInLog{
+.Table .Row{
     background-color: #ECFCB0;
 }
-.LogTable th{
+.Table th{
     padding: .5rem 0;
 }
-.LogTable .DateDivide{
+.Table .DateDivide{
     text-align: left;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;

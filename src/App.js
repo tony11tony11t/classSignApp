@@ -4,13 +4,15 @@ import SignInSystem from './components/SignInSystem'
 import LogSystem from './components/LogSystem'
 import GroupSystem from './components/GroupSystem'
 import ClassroomSystem from './components/ClassroomSystem'
+import UserSystem from './components/UserSystem'
+import Table from './components/Table'
 
 import React, { Component } from 'react'
 
 export default class App extends Component {
 
   state = {
-    system : "class" // "group"|"log"|"signIn"|"class"|"user"
+    system : "group" // "group"|"log"|"signIn"|"class"|"user"
   }
 
   changeSystem = (system) => this.setState({system});
@@ -25,6 +27,8 @@ export default class App extends Component {
         return <GroupSystem />
       case 'class':
         return <ClassroomSystem />
+      case 'user':
+        return <UserSystem />
     }
     return system
   }

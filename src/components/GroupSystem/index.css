@@ -30,3 +30,15 @@
     box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
     border-radius: .5rem;
 }
+
+
+.GroupTable .Row{
+    background-color: #fff8e0;
+    cursor: pointer;
+}
+.GroupTable td{
+    border-bottom: 2px solid white;
+}
+.GroupTable thead .money{
+    width: 3rem;
+}
