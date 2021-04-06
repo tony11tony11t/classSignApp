@@ -5,13 +5,14 @@ import LogSystem from './components/LogSystem'
 import GroupSystem from './components/GroupSystem'
 import ClassroomSystem from './components/ClassroomSystem'
 import UserSystem from './components/UserSystem'
+import LoginSystem from './components/LoginSystem'
 
 import React, { Component } from 'react'
 
 export default class App extends Component {
 
   state = {
-    system : "user" // "group"|"log"|"signIn"|"class"|"user"
+    system : "login" // "group" | "log" | "signIn" | "class" | "user" | "login" 
   }
 
   changeSystem = (system) => this.setState({system});
@@ -28,6 +29,8 @@ export default class App extends Component {
         return <ClassroomSystem />
       case 'user':
         return <UserSystem />
+      case 'login':
+        return <LoginSystem changePage={this.changeSystem}/>
     }
     return system
   }
@@ -37,7 +40,7 @@ export default class App extends Component {
     return (
       <>
       {this.getPageComponent(system)}
-      <Footer changePage={this.changeSystem} system={system}/>
+      {system == "login" ? null : <Footer changePage={this.changeSystem} system={system}/>}
       </>
     );
   }
