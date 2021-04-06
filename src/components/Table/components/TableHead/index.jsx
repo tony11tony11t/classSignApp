@@ -14,7 +14,8 @@ export default class TableHead extends Component {
                             if(arr[i] == null) return;
                             return <th className={arr[i]["className"]}
                                         rowSpan={arr[i]["rowSpan"] || "1"}
-                                        colSpan={arr[i]["colSpan"] || "1"}>
+                                        colSpan={arr[i]["colSpan"] || "1"}
+                                        style={{width:arr[i]["width"] || "auto"}}>
                                         {arr[i]["name"]}
                                     </th>
                         })

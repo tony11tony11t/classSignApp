@@ -1,58 +1,55 @@
 import React, { Component } from 'react'
 import Table from '../Table';
-import ClassroomInfo from './components/ClassroomInfo'
+import ClassroomEdit from './components/ClassroomEdit'
+import Header from '../Header'
 import signInAPI from '../../signInAPI'
 import './index.css'
 
 export default class ClassroomSystem extends Component {
 
     state = {
-        pageClassroomInfo:false
+        page : "index" //"index" | "edit"
     }
 
-    showClassroom = (id) => {
-        this.setState({pageClassroomInfo:true});
+    getEdit = (id) => {
+        this.setState({page : "edit"});
     }
 
-    showIndex = () => {
-        this.setState({pageClassroomInfo:false});
+    getIndex = () => {
+        this.setState({page : "index"});
     }
 
-    getContent = () => {
+    showContent = () => {
         const signIn = new signInAPI();
-        const {pageClassroomInfo} = this.state;
-        if(pageClassroomInfo){
-            return <ClassroomInfo back={this.showIndex}/>
-        }else{
-            return <Table rowData={signIn.getClassroomRowData()} 
+        const {page} = this.state;
+        switch(page){
+            case "index" :
+                return <Table rowData={signIn.getClassroomRowData()} 
                           fields={signIn.getClassroomHeadFields()} 
                           className="ClassroomTable"
-                          showInfo={this.showClassroom}/>
+                          showInfo={this.getEdit}/>
+            case "edit" :
+                return <ClassroomEdit back={this.getIndex} />
+                
         }
     }
 
     showAddBtn = () => {
-        const {pageClassroomInfo} = this.state;
-        if(!pageClassroomInfo){
-            return <img src="../img/add.png" onClick={this.showClassroom}/>
+        const btn = {
+            className : "btnAdd",
+            src : "../img/add.png",
+            onClick : this.getEdit
         }
+        const {page} = this.state;
+        return page == "index" ? btn : null;
     }
 
     render() {
         return (
             <div className='ClassroomContainer'>
-                <div className="ClassroomHeader">
-                    <h3>教室管理</h3>
-                    <div class="SubNavbar">
-                        {
-                            this.showAddBtn()
-                        }
-                    </div>
-                </div>
+                <Header title="教室管理" name="Classroom" buttons={this.showAddBtn()}/>
                 <div className='ClassroomWrap'>
-                    {
-                        this.getContent()
-                    }
+                    {this.showContent()}
                 </div>
             </div>
         )

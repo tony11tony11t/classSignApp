@@ -5,7 +5,7 @@
     font-size: .8rem;
 }
 .Table td{
-    padding: .4rem 0;
+    padding: .5rem 0;
 }
 .Table .Row{
     background-color: #ECFCB0;
@@ -17,5 +17,11 @@
     text-align: left;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
-    padding: .5rem 0 .5rem .5rem;
+    padding: .5rem 0 .5rem .8rem;
+}
+.Table .Clickable{
+    background-color: #fff8e0;
+}
+.Table .Clickable td{
+    border-top: 2px solid white;
 }

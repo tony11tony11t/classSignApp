@@ -1,0 +1,13 @@
+.ContainerHeader{
+    height: 1.5rem;
+    position: relative;
+    margin-bottom: .8rem;
+}
+.ContainerHeader img{
+    height: 100%;
+}
+.ContainerHeader img.btnEdit,
+.ContainerHeader img.btnChoose{
+    position: absolute;
+    right:0;
+}

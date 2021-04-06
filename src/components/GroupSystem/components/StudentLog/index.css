@@ -1,29 +1,7 @@
 .MyLogContainer{
-    height: calc(100% - 1.5rem - .8rem);
-}
-.MyLogTableWrap{
-    height: 80%;
-    overflow: auto;
-}
-.MyLogTable{
-    font-size: .8rem;
-    table-layout: fixed;
-    width: 100%;
-    text-align: center;
-}
-.MyLogTable th{
-    border-bottom: 1px solid #dddddd;
-    border-top: 1px solid #dddddd;
-    padding: .4rem 0;
-    position: sticky;
-    top: 0;
-    background-color: #fff8e0;
-}
-.MyLogTable th.type{
-    width: 20%;
-}
-.MyLogTable td{
-    padding: .4rem 0;
+    height: 100%;
+    padding: .8rem;
+    box-sizing: border-box;
 }
 .MyLogTotalWrap{
     display: flex;

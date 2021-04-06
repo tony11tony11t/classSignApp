@@ -1,0 +1,6 @@
+.StudentFormContainer{
+    height: 100%;
+    padding: .8rem;
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    box-sizing: border-box;
+}

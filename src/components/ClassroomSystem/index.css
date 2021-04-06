@@ -4,44 +4,8 @@
     height: 90%;
     position: relative;
 }
-.ClassroomContainer .ClassroomHeader{
-    height: 1.5rem;
-    position: relative;
-    margin-bottom: .5rem;
-}
-.ClassroomContainer .ClassroomHeader h3{
-    margin: 0;
-    display: inline-block;
-    vertical-align: middle;
-}
-.ClassroomContainer .ClassroomHeader .SubNavbar{
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-    position: absolute;
-    right: 0;
-}
-.ClassroomContainer .ClassroomHeader .SubNavbar img{
-    height: 100%;
-    margin: 0 .5rem;
-}
 .ClassroomContainer .ClassroomWrap{
     height: 95%;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
     border-radius: .5rem;
-}
-
-
-
-.ClassroomTable thead tr th.type{
-    width: 30%;
-}
-.ClassroomTable thead tr th.money{
-    width: 25%;
-}
-.ClassroomTable td{
-    border-top: 2px solid white;
-}
-.ClassroomTable .Row{
-    background-color: #fff8e0;
 }

@@ -1,0 +1,21 @@
+.SystemHeader{
+    height: 1.5rem;
+    position: relative;
+    margin-bottom: .5rem;
+}
+.SystemHeader h3{
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+.SystemHeader .SubNavbar{
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    position: absolute;
+    right: 0;
+}
+.SystemHeader .SubNavbar img{
+    height: 100%;
+    margin: 0 .5rem;
+}

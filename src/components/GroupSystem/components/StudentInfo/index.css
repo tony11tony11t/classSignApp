@@ -1,19 +1,35 @@
-.StudentInfo{
+.StudentInfoContainer{
     padding: .8rem;
     height: 100%;
     background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
     box-sizing: border-box;
 }
-.StudentInfo .header{
-    height: 1.5rem;
-    position: relative;
-    margin-bottom: .8rem;
+
+.StudentInfoBody{
+    font-size: .8rem;
+    overflow: auto;
+    height: 90%;
 }
-.StudentInfo .header img{
-    height: 100%;
+.StudentInfoBody table{
+    table-layout: fixed;
+    width: 100%;
 }
-.StudentInfo .header img.btnEdit,
-.StudentInfo .header img.btnChoose{
-    position: absolute;
-    right:0;
+.StudentInfoBody td{
+    padding: .4rem 0;
+    border-bottom: 1px solid #ebedee;
+    vertical-align: text-top;
+}
+.StudentInfoBody .signInLog{
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 80%;
+    margin: 1rem 10%;
+    background: white;
+    border-radius: .5rem;
+    padding: .4rem 0;
+    box-shadow: rgba(0,0,0,0.2) 2px 2px 8px;
+}
+.StudentInfoBody .signInLog:focus{
+    outline: none;
 }

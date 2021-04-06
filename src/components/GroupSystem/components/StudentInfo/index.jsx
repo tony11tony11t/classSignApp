@@ -1,55 +1,38 @@
 import React, { Component } from 'react'
-import Info from './components/Info'
-import Log from './components/Log'
-import Edit from './components/Edit'
+import signInAPI from '../../../../signInAPI'
+import ContainerHeader from '../../../ContainerHeader'
 import './index.css'
 
 export default class StudentInfo extends Component {
 
-    state = {
-        page : "info" //"info" | "log" | "edit"
-    }
-    
-    handleClickBack = () => {
-        const {page} = this.state;
-        if(page != "info"){
-            this.setState({page:"info"});
-        }else{
-            this.props.back();
-        }
-    }
-    getContent = () => {
-        switch(this.state.page){
-            case "info":
-                return <Info showLog={this.showLog}/>
-            case "log":
-                return <Log />
-            case "edit":
-                return <Edit />
-        }
-    }
-    showLog = () => this.setState({page:"log"});
-    showEdit = () => this.setState({page:"edit"});
-
-    getSubNavBtn = () => {
-        switch(this.state.page){
-            case "info":
-                return <img className="btnEdit" src="../img/edit.png" onClick={this.showEdit}/>
-            case "log":
-                return <img className="btnChoose" src="../img/choose.png" />
-            case "edit":
-                return;
-        }
+    getInfo = (obj) => {
+        const signIn = new signInAPI();
+        return signIn.getPersonalHeadFields().map(label => (
+            <tr>
+                <td className={`label ${label["name"]}`}>{label["label"]}</td>
+                <td>{obj[label["name"]]}</td>
+            </tr>
+        ));
     }
 
-    render() { 
+    render() {
+        const btn =  {
+            className : "btnEdit",
+            src : "../img/edit.png",
+            onClick : this.props.showEdit
+        }
+        const signIn = new signInAPI();
         return (
-            <div className="StudentInfo">
-                <div className="header">
-                    <img className="btnBack" src="../img/back.png" onClick={this.handleClickBack}/>
-                    {this.getSubNavBtn()}
+            <div className="StudentInfoContainer">
+                <ContainerHeader buttons={btn} backPage={this.props.back}/>
+                <div className="StudentInfoBody">
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            {this.getInfo(signIn.getPersonalRowDate())}
+                        </tbody>
+                    </table>
+                    <button className="signInLog" onClick={this.props.showLog}>查看點名紀錄</button>
                 </div>
-                {this.getContent()}
             </div>
         )
     }

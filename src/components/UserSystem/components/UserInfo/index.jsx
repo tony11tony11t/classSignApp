@@ -5,7 +5,7 @@ export default class UserTable extends Component {
 
     render() {
         return (
-            <table className="UserTable" border="0" cellspacing="0" cellpadding="0">
+            <table className="UserInfo" border="0" cellspacing="0" cellpadding="0">
                 <tbody>
                     <tr>
                         <td>帳號:</td>

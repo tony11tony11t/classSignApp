@@ -4,18 +4,13 @@
     height: 90%;
     position: relative;
 }
-.UserContainer h3{
-    margin: 0 0 .5rem 0;
-    height: 1.5rem;
-}
 .UserContainer .UserWrap{
-    padding-top: 1rem;
     height: 95%;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 10px;
     border-radius: .5rem;
     box-sizing: border-box;
 }
-.UserContainer .UserWrap>button{
+.UserContainer .UserWrap .IndexContainer>button{
     border: none;
     font-size: 1rem;
     font-weight: 600;
@@ -26,7 +21,14 @@
     padding: .4rem 0;
     box-shadow: rgb(0 0 0 / 20%) 2px 2px 8px;
 }
-.UserContainer .UserWrap>button.btnLogout{
+.UserContainer .UserWrap .IndexContainer>button.btnLogout{
     background-color: #FB5D65;
     color: white;
+}
+.ResetPasswordContainer,
+.UserlistContainer,
+.IndexContainer{
+    padding: .8rem;
+    height: 100%;
+    box-sizing: border-box;
 }

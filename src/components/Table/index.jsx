@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import TableHead from '../TableHead'
+import TableHead from './components/TableHead'
 import './index.css'
 
 export default class Table extends Component {
@@ -15,8 +15,10 @@ export default class Table extends Component {
     }
     showRowData = (obj) => {
         const {showInfo} = this.props;
+        let onClick = showInfo != undefined ? showInfo.bind(this,obj["id"]) : null;
+        let className = `Row ${showInfo != undefined ? "Clickable" : ""}`;
         return (
-            <tr className="Row" onClick={showInfo != undefined? showInfo.bind(this,obj["id"]) : null}>
+            <tr className={className} onClick={onClick}>
             {
                 Object.keys(obj).map(k => {
                     if(k != "id")

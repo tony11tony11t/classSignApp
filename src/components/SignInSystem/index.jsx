@@ -3,6 +3,7 @@ import ClassroomList from './components/ClassroomList'
 import ClassList from './components/ClassList'
 import DatePicker from '../DatePicker'
 import StudentList from './components/StudentList'
+import Header from '../Header'
 import './index.css'
 
 export default class SignInSystem extends Component {
@@ -82,6 +83,7 @@ export default class SignInSystem extends Component {
     handleSubmit = () => {
         const {date,classroom,classType,students} = this.state.myOptions;
         console.log("點名成功");
+        this.props.changePage("log");
     }
     
     isFinish = type => this.state.myOptions[type] ? 'finish' : '';
@@ -97,7 +99,7 @@ export default class SignInSystem extends Component {
         let attr = {
             type : 'button',
             className : 'submit inactivated',
-            onclick : null
+            onClick : null
         }
         if(date && classroom && classType && students){
             attr = {
@@ -119,7 +121,7 @@ export default class SignInSystem extends Component {
         }
         return (
             <div className='signInContainer'>
-                <h3>簽到系統</h3>
+                <Header title="點名系統" name="SignIn"/>
                 <div className='signInWrap'>
                     <form>
                         <div className='signInFormWrap'>

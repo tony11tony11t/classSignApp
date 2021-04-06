@@ -4,9 +4,6 @@
     height: 90%;
     position: relative;
 }
-.signInContainer h3{
-    margin: 0 0 .5rem 0;
-}
 .signInContainer .signInWrap{
     height: 95%;
     position: relative;

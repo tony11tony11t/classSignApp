@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Table from '../Table'
 import signInAPI from '../../signInAPI'
+import Header from '../Header'
 import './index.css'
 
 export default class LogSystem extends Component {
@@ -8,7 +9,7 @@ export default class LogSystem extends Component {
         const signIn = new signInAPI();
         return (
             <div className='LogContainer'>
-                <h3>點名紀錄</h3>
+                <Header title="點名紀錄" name="Log"/>
                 <div className='LogWrap'>
                     <Table rowData={signIn.getLogRowData()} 
                            fields={signIn.getLogHeadFields()} 
