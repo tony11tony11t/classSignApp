@@ -10,6 +10,11 @@
 .LoginContainer h2{
     margin: .6rem;
 }
+.LoginContainer p{
+    color: #B7161E;
+    font-size: .8rem;
+    font-weight: 600;
+}
 .LoginContainer form{
     width: 60%;
     margin: auto;

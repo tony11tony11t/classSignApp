@@ -5,14 +5,22 @@ import './index.css'
 
 export default class StudentInfo extends Component {
 
-    getInfo = (obj) => {
-        const signIn = new signInAPI();
-        return signIn.getPersonalHeadFields().map(label => (
+    getInfo = () => {
+        const {data} = this.props
+        return signInAPI.getPersonalHeadFields().map(label => (
             <tr>
                 <td className={`label ${label["name"]}`}>{label["label"]}</td>
-                <td>{obj[label["name"]]}</td>
+                <td>{this.transfromValue(data[label["name"]])}</td>
             </tr>
         ));
+    }
+
+    transfromValue = (v) => {
+        if(typeof v === "boolean"){
+            return v ? "是" : "否"
+        }else{
+            return v
+        }
     }
 
     render() {
@@ -21,14 +29,13 @@ export default class StudentInfo extends Component {
             src : "../img/edit.png",
             onClick : this.props.showEdit
         }
-        const signIn = new signInAPI();
         return (
             <div className="StudentInfoContainer">
                 <ContainerHeader buttons={btn} backPage={this.props.back}/>
                 <div className="StudentInfoBody">
                     <table border="0" cellspacing="0" cellpadding="0">
                         <tbody>
-                            {this.getInfo(signIn.getPersonalRowDate())}
+                            {this.getInfo()}
                         </tbody>
                     </table>
                     <button className="signInLog" onClick={this.props.showLog}>查看點名紀錄</button>

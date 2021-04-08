@@ -3,6 +3,7 @@
     width: 100%;
     text-align: center;
     font-size: .8rem;
+    border-spacing: 0;
 }
 .Table td{
     padding: .5rem 0;

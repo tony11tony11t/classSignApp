@@ -1,35 +1,33 @@
 import React, { Component } from 'react'
-import Item from '../Item'
+import signInAPI from '../../../../signInAPI'
 import './index.css'
 
 export default class ClassroomList extends Component {
+
     state = {
-        classrooms:[
-            {id:0,name:'11號教室',money:false,normal:true,special:true},
-            {id:1,name:'5號教室',money:false,normal:true,special:false},
-            {id:2,name:'1號教室',money:true,normal:true,special:false},
-            {id:3,name:'18號教室',money:true,normal:true,special:true}
-        ]
+        classrooms : []
     }
-    handleSelect = (id) => {
-        const {classrooms} = this.state;
-        this.props.fnGetClassroom(classrooms.find(classroom => classroom.id == id));
+    componentDidMount = () => {
+        signInAPI.getClassroomsRowData().then(list => {
+            this.setState({classrooms : list[0].data})
+        })
     }
-    isSelected = id => {
-        const {selectClassroom} = this.props;
-        return selectClassroom && (selectClassroom.id == id)
+
+    getClassName = (data) => {
+        const {markClassroom} = this.props;
+        return `classroom options ${markClassroom && (markClassroom.id == data.id) ? "mark" : ""}`
     }
 
     render() {
         const {classrooms} = this.state;
         return (
-            <ul className='signInList'>
+            <ul className='classroomList'>
             {
-                classrooms.map( i => 
-                    <Item {...i}
-                          type='classroom' 
-                          selected={this.isSelected(i.id)}
-                          fnSelect={this.handleSelect} />
+                classrooms.map( i =>
+                    <li className={this.getClassName(i)} 
+                        onClick={this.props.getClassroom.bind(this,i)}>
+                            {i.name}
+                    </li>
                 )
             }
             </ul>

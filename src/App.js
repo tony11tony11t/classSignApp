@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 export default class App extends Component {
 
   state = {
-    system : "login" // "group" | "log" | "signIn" | "class" | "user" | "login" 
+    system : "signIn" // "group" | "log" | "signIn" | "class" | "user" | "login" 
   }
 
   changeSystem = (system) => this.setState({system});

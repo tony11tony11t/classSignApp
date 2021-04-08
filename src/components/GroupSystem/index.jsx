@@ -11,60 +11,78 @@ import Header from '../Header'
 export default class GroupSystem extends Component {
     
     state = {
-        page : "index" // "index" | "info" | "edit" | "log"
+        page : "index", // "index" | "info" | "edit" | "log" | "new"
+        groupList : [],
+        studentData : {}
     }
 
-    getInfo = (id) => {
-        this.setState({page:"info"});
+    componentDidMount = () => {
+        signInAPI.getGroupRowData().then(groupList => {
+            this.setState({groupList})
+        })
     }
-    getIndex = () => {
-        this.setState({page:"index"});
+
+    getInfo = (studentID,groupID) => {
+        signInAPI.getPage(this , "info");
+        if(studentID && groupID){
+            signInAPI.getStudentRowDate(studentID,groupID).then(studentData => this.setState({studentData}))
+        }
     }
-    getEdit = () => {
-        this.setState({page:"edit"});
-    }
-    getLog = () => {
-        this.setState({page:"log"});
-    }
+    getIndex = () => signInAPI.getPage(this , "index");
+
+    getEdit = () => signInAPI.getPage(this , "edit");
+
+    getLog = () => signInAPI.getPage(this , "log");
+
+    getNew = () => signInAPI.getPage(this , "new");
 
     showContent = () => {
-        const signIn = new signInAPI();
-        const {page} = this.state;
+        const {page,groupList} = this.state;
         switch(page){
             case "index" : 
                 return (
                     <>
                     <Search />
-                    <Table rowData={signIn.getGroupRowData()} 
-                        fields={signIn.getGroupHeadFields()} 
-                        className="GroupTable"
-                        showInfo={this.getInfo}/>
+                    <Table  rowData     = {groupList} 
+                            fields      = {signInAPI.getGroupHeadFields()} 
+                            className   = "GroupTable"
+                            showInfo    = {this.getInfo}/>
                     </>
                 )
             case "info" :
-                return <StudentInfo back={this.getIndex} showEdit={this.getEdit} showLog={this.getLog}/>
+                return <StudentInfo back     = {this.getIndex} 
+                                    showEdit = {this.getEdit} 
+                                    showLog  = {this.getLog}
+                                    data     = {this.state.studentData}/>
             case "edit" :
-                return <StudentForm back={this.getIndex}/>
+                return <StudentForm back={this.getInfo} data={this.state.studentData}/>
+            case "new" :
+                return <StudentForm back={this.getIndex} data={{}}/>
             case "log" :
-                return <StudentLog back={this.getIndex} />;
+                return <StudentLog back={this.getIndex} data={this.state.studentData}/>;
         }
     }
 
-    render() {
+    showBtn = () => {
         const btn = [
             {
                 src : "../img/group_navbar_adduser.png",
                 className : "addUser",
-                onClick : this.getEdit
+                onClick : this.getNew
             },{
                 src : "../img/group_navbar_money.png",
                 className : "money"
             }
         ]
+        const {page} = this.state;
+        return page == "index" ? btn : null;
+    }
+
+    render() {
+        
         return (
             <div className='GroupContainer'>
-                <Header title="學員管理" name="Group" buttons={btn}/>
-                
+                <Header title="學員管理" name="Group" buttons={this.showBtn()}/>          
                 <div className='GroupWrap'>
                     {this.showContent()}
                 </div>

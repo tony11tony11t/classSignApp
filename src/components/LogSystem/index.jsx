@@ -5,14 +5,20 @@ import Header from '../Header'
 import './index.css'
 
 export default class LogSystem extends Component {
+    state = {
+        logList : []
+    }
+    componentDidMount = () => {
+        signInAPI.getLogRowData().then(logList => this.setState({logList}))
+    }
     render() {
-        const signIn = new signInAPI();
+        const {logList} = this.state;
         return (
             <div className='LogContainer'>
                 <Header title="點名紀錄" name="Log"/>
                 <div className='LogWrap'>
-                    <Table rowData={signIn.getLogRowData()} 
-                           fields={signIn.getLogHeadFields()} 
+                    <Table rowData={logList}
+                           fields={signInAPI.getLogHeadFields()} 
                            className="LogTable"/>
                 </div>
             </div>

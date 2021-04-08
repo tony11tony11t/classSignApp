@@ -6,11 +6,11 @@ import './index.css'
 
 export default class ClassroomEdit extends Component {
     render() {
-        const signIn = new signInAPI();
+        const {back,data} = this.props;
         return (
             <div className="ClassroomFormContainer">
-                <ContainerHeader backPage={this.props.back}/>
-                <Form field={signIn.getClassroomFormFields()} />
+                <ContainerHeader backPage={back}/>
+                <Form field={signInAPI.getClassroomFormFields()} data={data} />
             </div>
         )
     }

@@ -4,19 +4,25 @@ import Header from '../Header'
 import ContainerHeader from "../ContainerHeader"
 import Form from '../Form'
 import Table from '../Table'
-import './index.css'
 import signInAPI from '../../signInAPI'
+import './index.css'
 
 export default class UserSystem extends Component {
 
     state = {
-        page : "index" // "index" | "reset" | "userlist"
+        page : "index", // "index" | "reset" | "userlist"
+        userList : []
     }
-    getReset = () => this.setState({page:"reset"})
-    
-    getIndex = () => this.setState({page:"index"});
 
-    getUserlist = () => this.setState({page:"userlist"});
+    getReset = () => signInAPI.getPage(this , "reset");
+    getIndex = () => signInAPI.getPage(this , "index");
+    getUserlist = () => signInAPI.getPage(this , "userlist");
+
+    componentDidMount = () => {
+        signInAPI.getUserRowData().then(userList => {
+            this.setState({userList})
+        })
+    }
 
     showContent = () => {
         const {page} = this.state;
@@ -33,7 +39,8 @@ export default class UserSystem extends Component {
             case "reset" :
                 let formField = [{
                     type : "text",
-                    label : "新密碼"
+                    label : "新密碼",
+                    name : "newPassword"
                 }]
                 return (
                     <div className="ResetPasswordContainer">
@@ -42,13 +49,12 @@ export default class UserSystem extends Component {
                     </div>
                 )
             case "userlist" :
-                const signIn = new signInAPI();
                 return (
                     <div className="UserlistContainer">
                         <ContainerHeader backPage={this.getIndex}/>
-                        <Table rowData={signIn.getUserRowData()} 
-                            fields={signIn.getUserHeadFields()} 
-                            className="UserTable"/>
+                        <Table rowData    = {this.state.userList} 
+                               fields     = {signInAPI.getUserHeadFields()} 
+                               className  = "UserTable"/>
                     </div>
                 )
         }

@@ -3,26 +3,62 @@ import './index.css'
 
 export default class Form extends Component {
     showFields = () => {
-        const {field} = this.props;
+        const {field,data} = this.props;
 
         return field.map(obj => {
             let valueHtml;
             switch(obj["type"]){
                 case "text":
                 case "button":
-                    valueHtml = <input type={obj["type"]} name={obj["name"]}></input>
+                    let attr = {
+                        type         : obj["type"] ,
+                        name         : obj["name"] ,
+                        defaultValue : data && data[obj["name"]]
+                    }
+                    valueHtml = <input {...attr}></input>
                     break;
                 case "checkbox":
+                    valueHtml = (
+                        <fieldset className={`${obj["name"]}Group`}>
+                            {
+                                obj["options"].map(item => {
+                                    let attr = {
+                                        type : obj["type"],
+                                        id : item["name"],
+                                        name : obj["name"],
+                                        value : item["name"],
+                                        defaultChecked : data[item["name"]] || false
+                                    }
+                                    return (
+                                        <>
+                                        <input {...attr}/>
+                                        <label htmlFor={attr.id}>{item["label"]}</label><br/>
+                                        </>
+                                    )
+                                })
+                            }
+                        </fieldset>
+                    )
+                    break;
                 case "radio":
                     valueHtml = (
                         <fieldset className={`${obj["name"]}Group`}>
                             {
-                                obj["options"].map(item => (
-                                    <>
-                                    <input type={obj["type"]} id={item["name"]} name={obj["name"]} value={item["name"]}/>
-                                    <label htmlFor={item["name"]}>{item["label"]}</label><br/>
-                                    </>
-                                ))
+                                obj["options"].map(item => {
+                                    let attr = {
+                                        type : obj["type"],
+                                        id : item["name"],
+                                        name : obj["name"],
+                                        value : item["name"],
+                                        defaultChecked : String(data[obj["name"]]) == item["name"]
+                                    }
+                                    return (
+                                        <>
+                                        <input {...attr}/>
+                                        <label htmlFor={attr.id}>{item["label"]}</label><br/>
+                                        </>
+                                    )
+                                })
                             }
                         </fieldset>
                     )

@@ -7,11 +7,11 @@ import './index.css'
 export default class StudentForm extends Component {
 
     render() {
-        const signIn = new signInAPI();
+        const {back,data} = this.props;
         return (
             <div className="StudentFormContainer">
-                <ContainerHeader backPage={this.props.back}/>
-                <Form field={signIn.getGroupFormFields()} />
+                <ContainerHeader backPage={back}/>
+                <Form field={signInAPI.getGroupFormFields()} data={data}/>
             </div>
         )
     }

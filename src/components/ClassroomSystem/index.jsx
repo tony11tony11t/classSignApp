@@ -8,28 +8,43 @@ import './index.css'
 export default class ClassroomSystem extends Component {
 
     state = {
-        page : "index" //"index" | "edit"
+        page : "index", //"index" | "edit"
+        classroomList : [],
+        classroom : {}
     }
 
-    getEdit = (id) => {
-        this.setState({page : "edit"});
+    componentDidMount = () => {
+        signInAPI.getClassroomsRowData().then(classroomList => {
+            this.setState({classroomList})
+        })
     }
 
-    getIndex = () => {
-        this.setState({page : "index"});
+    getEdit = id => {
+        if(id){
+            signInAPI.getClassroomData(id).then(classroom =>{
+                this.setState({classroom , page : "edit"});
+            });
+        }else{
+            this.setState({
+                classroom : {},
+                page : "edit"
+            });
+        }
     }
+
+    getIndex = () => this.setState({page : "index"});
 
     showContent = () => {
-        const signIn = new signInAPI();
-        const {page} = this.state;
+        const {page , classroomList , classroom} = this.state;
         switch(page){
             case "index" :
-                return <Table rowData={signIn.getClassroomRowData()} 
-                          fields={signIn.getClassroomHeadFields()} 
-                          className="ClassroomTable"
-                          showInfo={this.getEdit}/>
+                return <Table rowData   = {classroomList} 
+                              fields    = {signInAPI.getClassroomHeadFields()} 
+                              className = "ClassroomTable"
+                              showInfo  = {this.getEdit}/>
             case "edit" :
-                return <ClassroomEdit back={this.getIndex} />
+                return <ClassroomEdit back = {this.getIndex} 
+                                      data = {classroom}/>
                 
         }
     }
@@ -37,8 +52,8 @@ export default class ClassroomSystem extends Component {
     showAddBtn = () => {
         const btn = {
             className : "btnAdd",
-            src : "../img/add.png",
-            onClick : this.getEdit
+            src       : "../img/add.png",
+            onClick   : this.getEdit.bind(this,null)
         }
         const {page} = this.state;
         return page == "index" ? btn : null;

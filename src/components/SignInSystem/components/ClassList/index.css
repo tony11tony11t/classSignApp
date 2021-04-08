@@ -1,5 +1,14 @@
-.signInClassList{
-    overflow: auto;
-    height: 60%;
-    margin: 1rem 0 ;
+.ClassList{
+    margin: .5rem;
+}
+.ClassList .options{
+    margin: 0 auto;
+    width: 90%;
+    padding: .5rem;
+    box-sizing: border-box;
+    font-size: .8rem;
+    border-radius: .5rem;
+}
+.ClassList .options.mark{
+    background-color: #FFEEB2;
 }

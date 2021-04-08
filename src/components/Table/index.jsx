@@ -6,7 +6,7 @@ export default class Table extends Component {
     showDivide = (content) => {
         if(content == null) return;
         
-        let dataLength = Object.keys(this.props.rowData[0].data[0]).length - 1;
+        let dataLength = Object.keys(this.props.rowData[0].data[0]).filter(k => !k.includes("id")).length;
         return (
             <tr>
                 <td colSpan={dataLength} className="DateDivide">{content}</td>
@@ -15,22 +15,33 @@ export default class Table extends Component {
     }
     showRowData = (obj) => {
         const {showInfo} = this.props;
-        let onClick = showInfo != undefined ? showInfo.bind(this,obj["id"]) : null;
+        let onClick = showInfo != undefined ? showInfo.bind(this,obj["id"],obj["idGroup"]) : null;
         let className = `Row ${showInfo != undefined ? "Clickable" : ""}`;
         return (
             <tr className={className} onClick={onClick}>
             {
                 Object.keys(obj).map(k => {
-                    if(k != "id")
-                        return <td>{obj[k]}</td>
+                    if(!k.includes("id")){
+                        return <td key={`${obj["id"]}_${k}`}>{this.transfromValue(obj[k])}</td>
+                    }
+                        
                 })
             }
             </tr>
         )
     }
+
+    transfromValue = (v) => {
+        if(typeof v === "boolean"){
+            return v ? "O" : ""
+        }else{
+            return v
+        }
+    }
+
     render() {
         return (
-            <table className={`Table ${this.props.className}`} border="0" cellspacing="0" cellpadding="0">
+            <table className={`Table ${this.props.className}`}>
                 <TableHead fields={this.props.fields} />
                 <tbody>
                 {

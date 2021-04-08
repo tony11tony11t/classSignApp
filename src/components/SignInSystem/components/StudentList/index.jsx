@@ -1,65 +1,48 @@
 import React, { Component } from 'react'
 import './index.css'
-import Item from '../Item'
+import signInAPI from '../../../../signInAPI'
 
 export default class StudentList extends Component {
     state = {
-        groups:[
-            {id:1,name:"第一組",students:[
-                {id:1.000001,name:'1王小名'},
-                {id:1.000002,name:'1王小名'},
-                {id:1.000003,name:'1王小名'}
-            ]},
-            {id:2,name:"第二組",students:[
-                {id:2.000001,name:'2王小名'},
-                {id:2.000002,name:'2王小名'},
-                {id:2.000003,name:'2王小名'}
-            ]},
-            {id:3,name:"第三組",students:[
-                {id:3.000001,name:'3王小名'},
-                {id:3.000002,name:'3王小名'},
-                {id:3.000003,name:'3王小名'}
-            ]}
-        ],
-        ShowStudents:new Set()
+        students : [],
+        unfoldGroup : null
     }
-    handleSelect = id => {
-        const {ShowStudents} = this.state;
-        ShowStudents.has(id) ? ShowStudents.delete(id) : ShowStudents.add(id);
-        this.setState({ShowStudents});
+    componentDidMount = () => {
+        signInAPI.getGroupRowData().then(students => this.setState({students}))
     }
-    handleSelectStudent = id => {
-        let groupid = Math.floor(id)
-        const {students} = this.state.groups.find(group => group.id == groupid);
-        this.props.fnGetStudents(students.find(student => student.id == id))
-    }
+    showStudents = i => this.setState({unfoldGroup : this.state.unfoldGroup === i ? null : i})
 
-    isSelect = id => {
-        const {selectStudent} = this.props;
-        return [...(selectStudent || [])].find(student => student.id == id) ? true : false;
+    getClassName = (data) => {
+        const {markStudents} = this.props;
+        return `student options ${markStudents && [...markStudents].find(mark => mark.id === data.id) ? "mark" : ""}`
     }
-    showStudents = students =>  students.map(student =>
-                                    <Item {...student}
-                                        type='student' 
-                                        selected={this.isSelect(student.id)}  
-                                        fnSelect={this.handleSelectStudent} />
-                                )
-        
-    
 
     render() {
-        const {groups,ShowStudents} = this.state;
+        const {students,unfoldGroup} = this.state;
         return (
-            <ul className='signInGroupsList'>
+            <ul className='GroupsList'>
             {
-                groups.map(group => (
-                    <>
-                        <Item type='group' {...group} fnSelect={this.handleSelect}></Item>
-                        <ul className='signInStudentsList'>
-                            {ShowStudents.has(group.id) ? this.showStudents(group.students) : null}
-                        </ul>
-                    </>
-                ))
+                students.map((group,index) => {
+                    return (
+                        <li className="group options">
+                            <span onClick={this.showStudents.bind(this,index)}>{group.content}</span>
+                            {
+                                unfoldGroup === index ? (
+                                    <ul className='StudentsList'>
+                                        {
+                                            group.data.map(student => 
+                                                <li className={this.getClassName(student)}
+                                                    onClick = {this.props.getStudents.bind(this,student)}>
+                                                        {student.name}
+                                                </li>
+                                            )
+                                        }
+                                    </ul>
+                                ) : null
+                            }
+                        </li>
+                    )
+                })
             }
             </ul>
         )

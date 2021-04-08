@@ -1,74 +1,205 @@
-export default class signInAPI{
-    getGroupRowData = () => {
-        let arr = [{
-            content:"第一組",
-            data:[
-                {
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "O",
-                    id : "001"
-                },{
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "O",
-                    id : "002"
-                },{
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "",
-                    id : "003"
-                },{
-                    name : "唐小駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "",
-                    id : "004"
-                },
-            ]
-        },{
-            content:"第二組",
-            data:[
-                {
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "O",
-                    id : "001"
-                },{
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "O",
-                    id : "002"
-                },{
-                    name : "唐嘉駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "",
-                    id : "003"
-                },{
-                    name : "唐小駿",
-                    total : 1000,
-                    normal : 50,
-                    special : 50,
-                    money : "",
-                    id : "004"
-                },
-            ]
-        }];
+import FirebaseAPI from './FirebaseAPI'
+class signInAPI{
+
+    /*global variable*/
+    username = "tony";
+
+    getPage = (obj , page) => obj.setState({page});
+
+    getGroupRowData = async () => {
+        let GroupList = []
+        await FirebaseAPI.getData(FirebaseAPI.getGroupPath()).then(groups => {
+            Object.keys(groups).forEach(key => {
+                let group = groups[key];
+                
+                let data = [];
+                Object.keys(group.student).forEach(id =>{
+                    let student = group.student[id];
+                    let studentData = {
+                        name : student["name"],
+                        total : student["normalNum"] + student["specialNum"],
+                        normal : student["normalNum"],
+                        special : student["specialNum"],
+                        money : student["money"],
+                        id,
+                        idGroup : key
+                    }
+                    data.push(studentData);
+                })
+
+                GroupList.push({
+                    content : group.name,
+                    data
+                })
+            })
+        });
+        return GroupList;
+    }
+
+    getLogRowData = async () => {
+        let logList = []
+        await FirebaseAPI.getData(FirebaseAPI.getLogPath()).then(list => {
+            list.forEach(item => {
+
+                let data = {
+                    classroom: item["classroom"],
+                    group : item["group"],
+                    name : item["name"],
+                    type : item["type"],
+                    id : item["id"]
+                }
+
+                if(logList.length != 0){
+                    if(logList[logList.length - 1].content == item["date"]){
+                        logList[logList.length - 1].data.push(data); 
+                    }else{
+                        logList.push({
+                            content: item["date"],
+                            data : [data]
+                        })
+                    }
+                }else{
+                    logList.push({
+                        content: item["date"],
+                        data : [data]
+                    })
+                }
+
+            })
+        });
+        return logList;
+    }
+
+    getClassroomsRowData = async () => {
+        let classroomList = [{
+            content:null,
+            data:[]
+        }]
+        await FirebaseAPI.getData(FirebaseAPI.getClassroomPath()).then(list => {
+            Object.keys(list).forEach(id => {
+                let item = {
+                    name: list[id]["name"],
+                    normal : list[id]["normal"],
+                    special : list[id]["special"],
+                    money : list[id]["money"],
+                    id
+                }
+                classroomList[0].data.push(item)
+            })
+        });
+        return classroomList;
+    }
+
+    getClassroomData = async (id) => {
+        let classroom;
+        await FirebaseAPI.getData(FirebaseAPI.getClassroomPath(id)).then(d => {
+            classroom = d;
+        })
+        return classroom;
+    }
+
+    getUserRowData = async () => {
+        let userList = [{
+            content:null,
+            data:[]
+        }]
+        await FirebaseAPI.getData(FirebaseAPI.getUserPath()).then(list => {
+            Object.keys(list).forEach(id => {
+                let item = {
+                    username: list[id]["username"],
+                    password : list[id]["password"],
+                    role : list[id]["role"],
+                    id
+                }
+                userList[0].data.push(item)
+            })
+        });
+        return userList;
+    }
+
+    getUserData = async (username) => {
+        let user;
+        await FirebaseAPI.getData(FirebaseAPI.getUserPath(username)).then(d => {
+            user = d;
+        })
+        return user;
+    }
+
+    login = async (username,password) => {
+        /*TODO - 過濾username的字串 */
+        let result = 200;
+        await FirebaseAPI.getData(FirebaseAPI.getUserPath(username),"password").then(pw => {
+            if(pw == null){
+                result = "無此帳號";
+            }else if(pw != password){
+                result = "密碼錯誤"
+            }
+        })
+        return result;
+    }
+    
+    getStudentRowDate = async (id,idGroup) => {
+        let studentData = {}
+        await FirebaseAPI.getData(FirebaseAPI.getGroupPath(idGroup),"name").then(n => {
+            studentData["group"] = n;
+        });
+        await FirebaseAPI.getData(FirebaseAPI.getStudentPath(idGroup),id).then(list => {
+            studentData = {...studentData , ...list};
+        });
+        return studentData;
+    }
+
+    postSignInLog = async (date,classroom,classType,students) => {
+        date = `${date.year}-${date.month}-${date.day}`;
+        students = [...students];
+        let className = classroom.name;
+        for(let student of students){
+            let groupName;
+            await FirebaseAPI.getData(FirebaseAPI.getGroupPath(student.idGroup),"name").then(name => groupName = name);
+            FirebaseAPI.postLog(date , className , groupName , student.name , classType)
+        }
+    }
+
+
+
+
+    getPersonalLogRowData = () => {
+        let arr = [
+            {
+                content:null,
+                data:[
+                    {
+                        id : "001",
+                        date : "2021/04/10(三)",
+                        classroom : "一號教室",
+                        type : "一般"
+                    },
+                    {
+                        id : "002",
+                        date : "2021/04/10(三)",
+                        classroom : "十一號教室",
+                        type : "一般"
+                    },
+                    {
+                        id : "003",
+                        date : "2021/04/10(三)",
+                        classroom : "一號教室",
+                        type : "特殊"
+                    },
+                    {
+                        id : "004",
+                        date : "2021/04/10(三)",
+                        classroom : "一號教室",
+                        type : "一般"
+                    }
+                ]
+            }
+        ]
         return arr;
     }
+
+
+
 
     getGroupHeadFields = () => {
         let headField = [
@@ -129,13 +260,13 @@ export default class signInAPI{
                 label : "工作"
             },{
                 type : "radio",
-                name : "payMoney",
+                name : "money",
                 label : "使用付費教室",
                 options : [{
-                    name : "yes",
+                    name : "true",
                     label : "是"
                 },{
-                    name : "no",
+                    name : "false",
                     label : "否"
                 }]
             },{
@@ -145,78 +276,6 @@ export default class signInAPI{
             }
         ]
         return formField;
-    }
-
-    getLogRowData = () => {
-        let arr = [
-            {
-                content:"04/03(六)",
-                data:[
-                    {
-                        id : "001",
-                        classroom : "一號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "002",
-                        classroom : "二號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "003",
-                        classroom : "三號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "004",
-                        classroom : "四號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    }
-                ]
-            },
-            {
-                content:"04/04(六)",
-                data:[
-                    {
-                        id : "005",
-                        classroom : "一號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "006",
-                        classroom : "二號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "007",
-                        classroom : "三號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    },
-                    {
-                        id : "008",
-                        classroom : "四號",
-                        group : "第一組",
-                        name : "唐嘉駿",
-                        type : "一般"
-                    }
-                ]
-            }
-        ]
-        return arr;
     }
 
     getLogHeadFields = () => {
@@ -239,43 +298,6 @@ export default class signInAPI{
             }]
         ];
         return headField;
-    }
-
-    getClassroomRowData = () => {
-        let arr = [{
-            content:null,
-            data:[
-                {
-                    classroom : "一號教室",
-                    normal : "O",
-                    apecial : "",
-                    money : "O",
-                    id : "001"
-                },
-                {
-                    classroom : "一號教室",
-                    normal : "O",
-                    apecial : "",
-                    money : "",
-                    id : "002"
-                },
-                {
-                    classroom : "三號教室",
-                    normal : "O",
-                    apecial : "O",
-                    money : "O",
-                    id : "003"
-                },
-                {
-                    classroom : "二號教室",
-                    normal : "",
-                    apecial : "",
-                    money : "O",
-                    id : "004"
-                }
-            ]
-        }];
-        return arr;
     }
 
     getClassroomHeadFields = () => {
@@ -333,13 +355,13 @@ export default class signInAPI{
                 }]
             },{
                 type : "radio",
-                name : "payMoney",
+                name : "money",
                 label : "使用付費教室",
                 options : [{
-                    name : "yes",
+                    name : "true",
                     label : "是"
                 },{
-                    name : "no",
+                    name : "false",
                     label : "否"
                 }]
             }
@@ -364,56 +386,6 @@ export default class signInAPI{
             }]
         ];
         return headField;
-    }
-
-    getPersonalLogRowData = () => {
-        let arr = [
-            {
-                content:null,
-                data:[
-                    {
-                        id : "001",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "一般"
-                    },
-                    {
-                        id : "002",
-                        date : "2021/04/10(三)",
-                        classroom : "十一號教室",
-                        type : "一般"
-                    },
-                    {
-                        id : "003",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "特殊"
-                    },
-                    {
-                        id : "004",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "一般"
-                    }
-                ]
-            }
-        ]
-        return arr;
-    }
-
-    getPersonalRowDate = () => {
-        let obj = {
-            name : "王大明",
-            startDate : "2019-03-22",
-            group : "第一組",
-            introducer : "哇哈哈",
-            relationship : "板橋",
-            city : "板橋市",
-            career : "職業",
-            payMoney : "否",
-            reason : "哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼哇哈哈＼",
-        }
-        return obj;
     }
 
     getPersonalHeadFields = () => {
@@ -441,7 +413,7 @@ export default class signInAPI{
                 name : "career"
             },{
                 label : "使用付費教室",
-                name : "payMoney"
+                name : "money"
             },{
                 label : "入會原因",
                 name : "reason"
@@ -450,19 +422,6 @@ export default class signInAPI{
         return labels;
     }
     
-    getUserRowData = () => {
-        let arr = [{
-            content:null,
-            data:[{
-                id : "001",
-                username : "tony11234",
-                password : "13245",
-                role : "一般會員"
-            }]
-        }]
-        return arr;
-    }
-
     getUserHeadFields = () => {
         let headField = [
             [{
@@ -480,4 +439,7 @@ export default class signInAPI{
         ];
         return headField;
     }
+
+    
 }
+export default new signInAPI()
