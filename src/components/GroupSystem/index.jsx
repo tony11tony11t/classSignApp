@@ -23,12 +23,19 @@ export default class GroupSystem extends Component {
     }
 
     getInfo = (studentID,groupID) => {
-        signInAPI.getPage(this , "info");
         if(studentID && groupID){
-            signInAPI.getStudentRowDate(studentID,groupID).then(studentData => this.setState({studentData}))
+            signInAPI.getStudentRowDate(studentID,groupID).then(studentData => {
+                this.setState({studentData});
+                signInAPI.getPage(this , "info");
+            })
         }
     }
-    getIndex = () => signInAPI.getPage(this , "index");
+    getIndex = () => {
+        signInAPI.getGroupRowData().then(groupList => {
+            this.setState({groupList})
+            signInAPI.getPage(this , "index")
+        })
+    };
 
     getEdit = () => signInAPI.getPage(this , "edit");
 

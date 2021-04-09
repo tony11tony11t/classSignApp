@@ -4,25 +4,20 @@ import './index.css'
 export default class DatePicker extends Component {
     months = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
     weeks = ['日','一','二','三','四','五','六'];
-    state = {
-        year : 2021,
-        month:3,
-        day:28
-    }
+    state = {}
     constructor(props){
         super(props);
         const {date} = this.props;
+        
         if(date){
             const {year , month , day} = date;
-            this.state = {year , month , day};
+            this.state = {year , month : parseInt(month) , day : parseInt(day)};
         }else{
             let date = new Date();
             this.state = {
-                date:{
-                    year    : date.getFullYear(),
-                    month   : date.getMonth() + 1,
-                    day     : date.getDate()
-                }
+                year    : date.getFullYear(),
+                month   : date.getMonth() + 1,
+                day     : date.getDate()
             };
         }
     }
@@ -47,14 +42,21 @@ export default class DatePicker extends Component {
                     ...Array(spaceEnd).fill("")];
         var result = [];
 
+        var isSelect =  d => {
+            const {year , month} = this.state;
+            if(new Date().getTime() < new Date(year , month - 1 , d).getTime()){
+                return false
+            }
+            return true
+        }
         for(let i = 0 ; i < Math.ceil(body.length / 7) ; i++){
             result.push(
                 <div className='DatePicker-dateRow'>
                 {
                     body.slice(i * 7 , i * 7 + 7).map(num =>{
                         let attr = {
-                            className : num ? `DatePicker-day ${isPick(num)}`    : 'DatePicker-day space',
-                            onClick   : num ? this.handleClickDay.bind(this,num) : null
+                            className : num ? `DatePicker-day ${isPick(num)} ${isSelect(num) ? "" : "disable"}`    : 'DatePicker-day space',
+                            onClick   : num && isSelect(num) ? this.handleClickDay.bind(this,num) : null
                         }
                         return <div {...attr}>{num}</div>
                     })
@@ -86,8 +88,9 @@ export default class DatePicker extends Component {
     }
     handleClickDay = (day) => {
         this.setState({day});
-        if(this.props.fnGetDate)
-            this.props.fnGetDate({...this.state , day});
+        if(this.props.getDate){  
+            this.props.getDate({...this.state , day});
+        }
     }
 
     render() {

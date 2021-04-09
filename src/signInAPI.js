@@ -38,8 +38,18 @@ class signInAPI{
 
     getLogRowData = async () => {
         let logList = []
-        await FirebaseAPI.getData(FirebaseAPI.getLogPath()).then(list => {
-            list.forEach(item => {
+        let filter = {
+            orderby : "date",
+            lessThan : (()=>{
+                let date = new Date();
+                let y = date.getFullYear();
+                let m = date.getMonth() + 1;
+                let d = date.getDate();
+                return `${y}-${m < 10 ? `0${m}` : m}-${d < 10 ? `0${d}` : d}`
+            })()
+        }
+        await FirebaseAPI.getData(FirebaseAPI.getLogPath(),"",filter).then(list => {
+            list.reverse().forEach(item => {
 
                 let data = {
                     classroom: item["classroom"],
@@ -144,7 +154,7 @@ class signInAPI{
             studentData["group"] = n;
         });
         await FirebaseAPI.getData(FirebaseAPI.getStudentPath(idGroup),id).then(list => {
-            studentData = {...studentData , ...list};
+            studentData = {...studentData , ...list , id};
         });
         return studentData;
     }
@@ -156,46 +166,36 @@ class signInAPI{
         for(let student of students){
             let groupName;
             await FirebaseAPI.getData(FirebaseAPI.getGroupPath(student.idGroup),"name").then(name => groupName = name);
-            FirebaseAPI.postLog(date , className , groupName , student.name , classType)
+            await FirebaseAPI.postLog(date , className , groupName , student.name , student.id , classType)
         }
     }
 
+    getPersonalLogRowData = async (id) => {
+        let logList = [{
+            content:null,
+            data:[]
+        }]
+        let filter = {
+            orderby : "id",
+            equalTo : id
+        }
+        await FirebaseAPI.getData(FirebaseAPI.getLogPath(),"",filter).then(list => {
+            list.reverse().forEach(item => {
+                console.log(item)
+                let data = {
+                    date : item["date"],
+                    classroom: item["classroom"],
+                    type : item["type"]
+                }
+                logList[0].data.push(data);
+            })
+        });
+        return logList;
+    }
 
-
-
-    getPersonalLogRowData = () => {
-        let arr = [
-            {
-                content:null,
-                data:[
-                    {
-                        id : "001",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "一般"
-                    },
-                    {
-                        id : "002",
-                        date : "2021/04/10(三)",
-                        classroom : "十一號教室",
-                        type : "一般"
-                    },
-                    {
-                        id : "003",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "特殊"
-                    },
-                    {
-                        id : "004",
-                        date : "2021/04/10(三)",
-                        classroom : "一號教室",
-                        type : "一般"
-                    }
-                ]
-            }
-        ]
-        return arr;
+    postStudent = async (data = {}) => {
+        const {name,startDate,group,introducer,relationship,city,career,money,reason} = data;
+        await FirebaseAPI.postStudent(name,startDate,group,introducer,relationship,city,career,money,reason)
     }
 
 
@@ -233,7 +233,8 @@ class signInAPI{
             {
                 type : "text",
                 name : "name",
-                label : "名稱"
+                label : "姓名",
+                placeholder : "王小明"
             },{
                 type : "button",
                 name : "startDate",
@@ -245,19 +246,23 @@ class signInAPI{
             },{
                 type : "text",
                 name : "introducer",
-                label : "介紹人"
+                label : "介紹人",
+                placeholder : "王大明"
             },{
                 type : "text",
                 name : "relationship",
-                label : "關係"
+                label : "關係",
+                placeholder : "兄弟"
             },{
                 type : "text",
                 name : "city",
-                label : "居住地"
+                label : "居住地",
+                placeholder : "台北"
             },{
                 type : "text",
                 name : "career",
-                label : "工作"
+                label : "工作",
+                placeholder : "學生"
             },{
                 type : "radio",
                 name : "money",
@@ -272,7 +277,8 @@ class signInAPI{
             },{
                 type : "text",
                 name : "reason",
-                label : "入會原因"
+                label : "入會原因",
+                placeholder : "寫點什麼吧......"
             }
         ]
         return formField;

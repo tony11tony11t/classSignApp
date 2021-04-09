@@ -1,5 +1,5 @@
 .DatePicker-wrap{
-    margin: 0 1rem;
+    margin: 0;
     text-align: center;
 }
 .DatePicker-weekdays{
@@ -15,6 +15,7 @@
 .DatePicker-dateRow .DatePicker-day{
     flex: 1;
     padding: .2rem 0;
+    font-size: .8rem;
 }
 .DatePicker-dateRow .DatePicker-day:hover{
     background-color:#E7E7E7;
@@ -23,9 +24,13 @@
 .DatePicker-dateRow .DatePicker-day.pick{
     background-color: #FFDC5F;
 }
-.DatePicker-dateRow .DatePicker-day.space:hover{
-    background-color: white;
+.DatePicker-dateRow .DatePicker-day.space:hover,
+.DatePicker-dateRow .DatePicker-day.disable:hover{
+    background-color: transparent;
     cursor: auto;
+}
+.DatePicker-dateRow .DatePicker-day.disable{
+    color: #c9c9c9;
 }
 .DatePicker-header{
     margin:.5rem 1.2rem;
@@ -34,6 +39,8 @@
     display: inline-block;
     width: 40%;
     margin: 0 10%;
+    font-size: .8rem;
+    vertical-align: baseline;
 }
 .DatePicker-wrap .arrow{
     border: solid #BDBDBD;

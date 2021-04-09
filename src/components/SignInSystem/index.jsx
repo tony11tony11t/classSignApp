@@ -26,18 +26,26 @@ export default class SignInSystem extends Component {
         super(props);
         //當組件建置時將時間設定成本地的今天
         let date = new Date();
+        let y = date.getFullYear();
+        let m = date.getMonth() + 1;
+        let d = date.getDate();
         
         this.state = {
             ...this.state,
             date:{
-                year    : date.getFullYear(),
-                month   : date.getMonth() + 1,
-                day     : date.getDate()
+                year    : y,
+                month   : m < 10 ? `0${m}` : m,
+                day     : d < 10 ? `0${d}` : d
             }
         };
     }
 
-    getDate = date => this.setState(date);
+    getDate = date => {
+        let {year , month , day} = date;
+        month = month < 10 ? `0${month}` : month;
+        day = day < 10 ? `0${day}` : day;
+        this.setState({date : {year , month , day}});
+    }
 
     getClassroom = classroom => {
         this.setState({classroom , classType:null});
@@ -95,8 +103,10 @@ export default class SignInSystem extends Component {
 
     handleSubmit = () => {
         const {date,classroom,classType,students} = this.state;
-        signInAPI.postSignInLog(date,classroom,classType,students);
-        this.props.changePage("log");
+        signInAPI.postSignInLog(date,classroom,classType,students).then(_ => {
+            this.props.changePage("log");
+        });
+        
     }
     
 
@@ -119,7 +129,7 @@ export default class SignInSystem extends Component {
                                 {`${date.year}-${date.month}-${date.day}`}
                             </button>
                             {show === "DatePicker" ? 
-                                <DatePicker fnGetDate   = {this.getDate} 
+                                <DatePicker getDate   = {this.getDate} 
                                             date        = {date}/> 
                                 : null
                             }

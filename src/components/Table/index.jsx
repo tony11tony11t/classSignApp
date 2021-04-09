@@ -34,6 +34,10 @@ export default class Table extends Component {
     transfromValue = (v) => {
         if(typeof v === "boolean"){
             return v ? "O" : ""
+        }else if(v === "true"){
+            return "O"
+        }else if(v === "false"){
+            return ""
         }else{
             return v
         }

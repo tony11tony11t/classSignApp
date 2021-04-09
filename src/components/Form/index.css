@@ -47,3 +47,14 @@
     background-color: #FB5D65;
     color: white;
 }
+.EditForm ul{
+    margin: 0;
+    background-color: white;
+    padding: .5rem;
+    font-size: .8rem;
+    display: flex;
+}
+.EditForm ul li{
+    flex:0 0 33%;
+    text-align: center;
+}

@@ -22,46 +22,60 @@ class FirebaseAPI{
 
     getStudentPath = idGroup => `${this.getGroupPath()}${idGroup}/student/`
 
-    getData = async (ref,key) => {
+    getData = async (ref,key,filter = {}) => {
         let result = [];
         let dbRef = this.database.ref(`${ref}${key || ""}`);
-
-        if(ref === "/log/"){
-            dbRef = dbRef.orderByChild('date');
+        let defaultFilter = {
+            orderby : null,
+            lessThan : null,
+            moreThan : null,
+            equalTo : null
         }
+        filter = Object.assign(defaultFilter , filter);
 
-        await dbRef.once("value", e => {
-            if(ref === "/log/"){
+        if(filter.lessThan){
+            dbRef = dbRef.startAt(filter.lessThan);
+        }
+        if(filter.moreThan){
+            dbRef = dbRef.endAt(filter.moreThan);
+        }
+        if(filter.equalTo){
+            dbRef = dbRef.equalTo(filter.equalTo);
+        }
+        if(filter.orderby){
+            dbRef = dbRef.orderByChild(filter.orderby);
+            await dbRef.once("value", e =>{
                 e.forEach(el => {
                     result.push({...el.val() , id : el.key});
                 });
-            }else{
-                result = e.val();
-            }
-        });
+            });
+        }else{
+            await dbRef.once("value", e => {
+                result = e.val()
+            });
+        }
         return result;
     }
 
     postClassroom = (name,normal,special,money) => {
         this.database.ref('/classrooms').push().set({name,normal,special,money})
     }
-    postLog = (date,classroom,group,name,type) => {
-        this.database.ref('/log').push().set({date,classroom,group,name,type})
+    postLog = async (date,classroom,group,name,id,type) => {
+        await this.database.ref('/log').push().set({date,classroom,group,name,id,type})
     }
-    postStudent = (name,startDate,group,introducer,relationship,city,career,money,reason) => {
+    postStudent = async (name,startDate,group,introducer,relationship,city,career,money,reason) => {
         let refGroup = this.database.ref('/group').orderByChild("name").equalTo(group);
-        refGroup.once("value",e => {
-            let groupKey;
+        let groupRef , groupKey;
+        await refGroup.once("value",async e => {
 
             if(e.val()){
                 groupKey = Object.keys(e.val())[0];  
             }else{
                 groupKey = this.database.ref('/group').push({name:group}).key;  
             }
-
-            let groupRef = this.database.ref(`/group/${groupKey}/student`);
-            groupRef.push({name,startDate,introducer,relationship,city,career,money,reason,normalNum : 0,specialNum : 0})
         });
+        groupRef = this.database.ref(`/group/${groupKey}/student`);
+        await groupRef.push({name,startDate,introducer,relationship,city,career,money,reason,normalNum : 0,specialNum : 0})
     }
 }
 

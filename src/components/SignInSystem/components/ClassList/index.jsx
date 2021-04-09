@@ -10,8 +10,8 @@ export default class ClassList extends Component {
     
     render() {
         const {normal,special} = this.props;
-        const normalTag = '一般課程';
-        const specialTag = '特殊課程';
+        const normalTag = '一般';
+        const specialTag = '特殊';
         return (
             <ul className='ClassList'>
                 {normal ? 
