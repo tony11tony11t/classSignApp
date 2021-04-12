@@ -11,24 +11,25 @@ class signInAPI{
         await FirebaseAPI.getData(FirebaseAPI.getGroupPath()).then(groups => {
             Object.keys(groups).forEach(key => {
                 let group = groups[key];
-                
                 let data = [];
-                Object.keys(group.student).forEach(id =>{
-                    let student = group.student[id];
-                    let studentData = {
-                        name : student["name"],
-                        total : student["normalNum"] + student["specialNum"],
-                        normal : student["normalNum"],
-                        special : student["specialNum"],
-                        money : student["money"],
-                        id,
-                        idGroup : key
-                    }
-                    data.push(studentData);
-                })
-
+                if(group.student){
+                    Object.keys(group.student).forEach(id =>{
+                        let student = group.student[id];
+                        let studentData = {
+                            name : student["name"],
+                            total : student["normalNum"] + student["specialNum"],
+                            normal : student["normalNum"],
+                            special : student["specialNum"],
+                            money : student["money"],
+                            id,
+                            idGroup : key
+                        }
+                        data.push(studentData);
+                    })
+                }
                 GroupList.push({
                     content : group.name,
+                    id      : key,
                     data
                 })
             })
@@ -59,8 +60,8 @@ class signInAPI{
                     id : item["id"]
                 }
 
-                if(logList.length != 0){
-                    if(logList[logList.length - 1].content == item["date"]){
+                if(logList.length !== 0){
+                    if(logList[logList.length - 1].content === item["date"]){
                         logList[logList.length - 1].data.push(data); 
                     }else{
                         logList.push({
@@ -134,19 +135,6 @@ class signInAPI{
         })
         return user;
     }
-
-    login = async (username,password) => {
-        /*TODO - 過濾username的字串 */
-        let result = 200;
-        await FirebaseAPI.getData(FirebaseAPI.getUserPath(username),"password").then(pw => {
-            if(pw == null){
-                result = "無此帳號";
-            }else if(pw != password){
-                result = "密碼錯誤"
-            }
-        })
-        return result;
-    }
     
     getStudentRowDate = async (id,idGroup) => {
         let studentData = {}
@@ -157,17 +145,6 @@ class signInAPI{
             studentData = {...studentData , ...list , id};
         });
         return studentData;
-    }
-
-    postSignInLog = async (date,classroom,classType,students) => {
-        date = `${date.year}-${date.month}-${date.day}`;
-        students = [...students];
-        let className = classroom.name;
-        for(let student of students){
-            let groupName;
-            await FirebaseAPI.getData(FirebaseAPI.getGroupPath(student.idGroup),"name").then(name => groupName = name);
-            await FirebaseAPI.postLog(date , className , groupName , student.name , student.id , classType)
-        }
     }
 
     getPersonalLogRowData = async (id) => {
@@ -181,7 +158,6 @@ class signInAPI{
         }
         await FirebaseAPI.getData(FirebaseAPI.getLogPath(),"",filter).then(list => {
             list.reverse().forEach(item => {
-                console.log(item)
                 let data = {
                     date : item["date"],
                     classroom: item["classroom"],
@@ -190,13 +166,132 @@ class signInAPI{
                 logList[0].data.push(data);
             })
         });
+        logList[0].data.sort((a,b) =>  new Date(b.date).getTime() - new Date(a.date).getTime())
         return logList;
     }
 
-    postStudent = async (data = {}) => {
-        const {name,startDate,group,introducer,relationship,city,career,money,reason} = data;
-        await FirebaseAPI.postStudent(name,startDate,group,introducer,relationship,city,career,money,reason)
+    login = async (username,password) => {
+        /*TODO - 過濾username的字串 */
+        let result = 200;
+        await FirebaseAPI.getData(FirebaseAPI.getUserPath(username),"password").then(pw => {
+            if(pw === null){
+                result = "無此帳號";
+            }else if(pw !== password){
+                result = "密碼錯誤"
+            }
+        })
+        return result;
     }
+
+    postSignInLog = async (date,classroom,classType,students) => {
+        for(let student of [...students]){ 
+            await FirebaseAPI
+                    .getData(FirebaseAPI.getGroupPath(student.idGroup),"name")
+                    .then(async name => {
+                        let data = {
+                            date        : `${date.year}-${date.month}-${date.day}`, 
+                            classroom   : classroom.name ,
+                            group       : name ,
+                            name        : student.name ,
+                            id          : student.id ,
+                            type        : classType
+                        }
+                        FirebaseAPI.postData(FirebaseAPI.getLogPath() , data);
+                        this.updateStudentLogNum(student.id , student.idGroup , classType);
+            });  
+        }
+    }
+
+    updateStudentLogNum = (studentId , groupId , classType) => {
+        FirebaseAPI.getData(FirebaseAPI.getStudentPath(groupId),studentId).then(async info => {
+            const {specialNum , normalNum} = info;
+            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(groupId),studentId,{
+                specialNum  : specialNum + (classType === "特殊"), 
+                normalNum   : normalNum  + (classType === "一般")
+            })
+        })
+    }
+
+    updateAllStudentMoney = async () => {
+        await FirebaseAPI.getData(FirebaseAPI.getGroupPath()).then(groups => {
+            Object.keys(groups).forEach(key => {
+                let group = groups[key];
+                if(group.student){
+                    Object.keys(group.student).forEach(id =>{
+                        FirebaseAPI.updateData(FirebaseAPI.getStudentPath(key),id,{
+                            money : false
+                        })
+                    })
+                }
+            })
+        });
+    } 
+    
+    postStudent = async (data = {}) => {
+        const {id , name} = data.group
+
+        data = Object.assign(data , {
+            group       : name,
+            normalNum   : 0,
+            specialNum  : 0
+        })
+        
+        FirebaseAPI.postData(FirebaseAPI.getStudentPath(id) , data)
+    }
+
+    updateStudent = async(newData , oldData) => {
+        const {name : newName , id : newId} = newData.group;
+        const {name : oldName , id : oldId} = oldData.group;
+
+        newData.group = newName;
+        if(newName === oldName){
+            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),newData.id,newData)
+        }else{
+            //移動資料
+            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),newData.id,newData);
+            await FirebaseAPI.removeData(FirebaseAPI.getStudentPath(oldId),oldData.id)
+        }
+        
+    }
+
+    removeStudent = async(studentId,groupId) => {
+        await FirebaseAPI.removeData(FirebaseAPI.getStudentPath(groupId),studentId)
+    }
+
+    searchGroupRowData = async (searchText) => {
+        let GroupList = []
+        await FirebaseAPI.getData(FirebaseAPI.getGroupPath()).then(groups => {
+            Object.keys(groups).forEach(key => {
+                let group = groups[key];
+                let data = [];
+                if(group.student){
+                    Object.keys(group.student).forEach(id =>{
+                        let student = group.student[id];
+                        //比對文字
+                        if(student["name"].includes(searchText)){
+                            let studentData = {
+                                name : student["name"],
+                                total : student["normalNum"] + student["specialNum"],
+                                normal : student["normalNum"],
+                                special : student["specialNum"],
+                                money : student["money"],
+                                id,
+                                idGroup : key
+                            }
+                            data.push(studentData);
+                        }
+                    })
+                }
+                GroupList.push({
+                    content : group.name,
+                    id      : key,
+                    data
+                })
+            })
+        });
+        return GroupList;
+    }
+
 
 
 
@@ -205,7 +300,8 @@ class signInAPI{
         let headField = [
             [{
                 name : "姓名",
-                className : "name"
+                className : "name",
+                width : "30%"
             }],
             [{
                 name : "總數",
@@ -317,7 +413,7 @@ class signInAPI{
                 {
                     name : "課程類型",
                     className : "type",
-                    colSpan : "2",
+                    colSpan : 2,
                     width: "30%"
                 },
                 {

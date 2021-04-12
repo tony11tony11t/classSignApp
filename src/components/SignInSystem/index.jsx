@@ -11,10 +11,6 @@ export default class SignInSystem extends Component {
 
     state = {
         show : null, // "DatePicker" | "ClassroomList" | "ClassType" | "Student" | null
-        showDatePicker : false,
-        showClassroomList : false,
-        showClassType : false,
-        showStudent : false,
         
         //點名資料儲存
         classroom:null,
@@ -30,13 +26,10 @@ export default class SignInSystem extends Component {
         let m = date.getMonth() + 1;
         let d = date.getDate();
         
-        this.state = {
-            ...this.state,
-            date:{
-                year    : y,
-                month   : m < 10 ? `0${m}` : m,
-                day     : d < 10 ? `0${d}` : d
-            }
+        this.state.date = {
+            year    : y,
+            month   : m < 10 ? `0${m}` : m,
+            day     : d < 10 ? `0${d}` : d
         };
     }
 
@@ -60,10 +53,10 @@ export default class SignInSystem extends Component {
     getStudents = student => {
         let {students} = this.state;
         if(students){
-            let listStudent = [...students].find(s => s.id == student.id)
+            let listStudent = [...students].find(s => s.id === student.id)
             if(listStudent){
                 students.delete(listStudent);
-                if(students.size == 0){
+                if(students.size === 0){
                     students = null;
                 }
             }else{
@@ -82,7 +75,7 @@ export default class SignInSystem extends Component {
     showStudentList = students => 
                         [...students].reduce(
                             (list,student,i) => 
-                                `${list}${i == 0 ? "" : ","}${student.name}`,""
+                                `${list}${i === 0 ? "" : ","}${student.name}`,""
                         );
 
     showSubmitBtn = () => {

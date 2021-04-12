@@ -31,6 +31,7 @@ export default class App extends Component {
         return <UserSystem />
       case 'login':
         return <LoginSystem changePage={this.changeSystem}/>
+      default : break;
     }
     return system
   }
@@ -40,7 +41,7 @@ export default class App extends Component {
     return (
       <>
       {this.getPageComponent(system)}
-      {system == "login" ? null : <Footer changePage={this.changeSystem} system={system}/>}
+      {system === "login" ? null : <Footer changePage={this.changeSystem} system={system}/>}
       </>
     );
   }

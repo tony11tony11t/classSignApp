@@ -13,7 +13,9 @@ export default class GroupSystem extends Component {
     state = {
         page : "index", // "index" | "info" | "edit" | "log" | "new"
         groupList : [],
-        studentData : {}
+        studentData : {},
+        studentID : null,
+        groupID : null
     }
 
     componentDidMount = () => {
@@ -23,13 +25,29 @@ export default class GroupSystem extends Component {
     }
 
     getInfo = (studentID,groupID) => {
-        if(studentID && groupID){
-            signInAPI.getStudentRowDate(studentID,groupID).then(studentData => {
-                this.setState({studentData});
-                signInAPI.getPage(this , "info");
-            })
+        
+        if(typeof studentID === "string" && typeof groupID === "string"){
+            this.setState({studentID , groupID});
+        }else{
+            studentID = null;
+            groupID   = null;
         }
+
+        let NowStudentID = studentID || this.state.studentID;
+        let NowGroupID   = groupID   || this.state.groupID;
+
+        signInAPI.getStudentRowDate(NowStudentID,NowGroupID).then(studentData => {
+            const {group} = studentData
+            studentData.group = {
+                id   : NowGroupID,
+                name : group
+            }
+            this.setState({studentData});
+            signInAPI.getPage(this , "info");
+        })
+        
     }
+
     getIndex = () => {
         signInAPI.getGroupRowData().then(groupList => {
             this.setState({groupList})
@@ -38,18 +56,23 @@ export default class GroupSystem extends Component {
     };
 
     getEdit = () => signInAPI.getPage(this , "edit");
+    getLog  = () => signInAPI.getPage(this , "log" );
+    getNew  = () => signInAPI.getPage(this , "new" );
 
-    getLog = () => signInAPI.getPage(this , "log");
+    updateMoney = () => {
+        signInAPI.updateAllStudentMoney().then(_ => this.getIndex());
+    }
 
-    getNew = () => signInAPI.getPage(this , "new");
+    updateGroupList = groupList => this.setState({groupList})
 
     showContent = () => {
-        const {page,groupList} = this.state;
+        const {page , groupList , studentData} = this.state;
+
         switch(page){
             case "index" : 
                 return (
                     <>
-                    <Search />
+                    <Search search={this.updateGroupList}/>
                     <Table  rowData     = {groupList} 
                             fields      = {signInAPI.getGroupHeadFields()} 
                             className   = "GroupTable"
@@ -60,13 +83,14 @@ export default class GroupSystem extends Component {
                 return <StudentInfo back     = {this.getIndex} 
                                     showEdit = {this.getEdit} 
                                     showLog  = {this.getLog}
-                                    data     = {this.state.studentData}/>
+                                    data     = {studentData}/>
             case "edit" :
-                return <StudentForm back={this.getInfo} data={this.state.studentData}/>
+                return <StudentForm back={this.getInfo} index={this.getIndex} data={studentData}/>
             case "new" :
                 return <StudentForm back={this.getIndex} data={{}}/>
             case "log" :
-                return <StudentLog back={this.getIndex} data={this.state.studentData}/>;
+                return <StudentLog back={this.getInfo} data={studentData}/>;
+            default : break;
         }
     }
 
@@ -78,11 +102,12 @@ export default class GroupSystem extends Component {
                 onClick : this.getNew
             },{
                 src : "../img/group_navbar_money.png",
-                className : "money"
+                className : "money",
+                onClick : this.updateMoney
             }
         ]
         const {page} = this.state;
-        return page == "index" ? btn : null;
+        return page === "index" ? btn : null;
     }
 
     render() {

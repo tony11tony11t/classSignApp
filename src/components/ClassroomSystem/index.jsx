@@ -45,7 +45,7 @@ export default class ClassroomSystem extends Component {
             case "edit" :
                 return <ClassroomEdit back = {this.getIndex} 
                                       data = {classroom}/>
-                
+            default : break;
         }
     }
 
@@ -56,7 +56,7 @@ export default class ClassroomSystem extends Component {
             onClick   : this.getEdit.bind(this,null)
         }
         const {page} = this.state;
-        return page == "index" ? btn : null;
+        return page === "index" ? btn : null;
     }
 
     render() {

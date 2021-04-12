@@ -12,8 +12,10 @@ export default class Footer extends Component {
             <div className='footer'>
             {
                 this.navItem.map(n =>
-                    <button type='button'>
-                        <img src={`../img/footer_${n}${system == n ? "_select" : ""}.png`} onClick={this.handleClick.bind(this,n)}/>
+                    <button type='button' key={`footerBtn${n}`}>
+                        <img src     = {`../img/footer_${n}${system === n ? "_select" : ""}.png`} 
+                             onClick = {this.handleClick.bind(this,n)}
+                             alt     = {n}/>
                     </button>
                 )
             }

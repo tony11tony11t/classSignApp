@@ -3,6 +3,8 @@ import './index.css'
 import Table from '../../../Table'
 import ContainerHeader from '../../../ContainerHeader'
 import signInAPI from '../../../../signInAPI'
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default class StudentLog extends Component {
     
@@ -43,7 +45,7 @@ export default class StudentLog extends Component {
                 <div className="MyLogTotalWrap">
                     {
                         this.state.record.map(obj => (
-                            <div className={obj["name"]}>
+                            <div className={obj["name"]} key={uuidv4()}>
                                 <p>{obj["label"]}</p>
                                 <p>{obj["time"]}</p>
                             </div>

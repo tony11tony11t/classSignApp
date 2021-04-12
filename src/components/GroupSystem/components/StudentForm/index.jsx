@@ -6,19 +6,28 @@ import './index.css'
 
 export default class StudentForm extends Component {
 
-    submit = (data) => {
-        let dataObj = {
-            name         : data.name ,
-            startDate    : `${data.year}-${data.month}-${data.day}` ,
-            group        : data.group.name ,
-            introducer   : data.introducer ,
-            relationship : data.relationship ,
-            city         : data.city ,
-            career       : data.career ,
-            money        : data.money ,
-            reason       : data.reason
+    submit = (newData) => {
+        newData = {...newData};
+        
+        const {year,month,day} = newData;
+        newData.startDate = `${year}-${month}-${day}`
+        delete newData.year;
+        delete newData.month;
+        delete newData.day;
+
+        const {data} = this.props;
+        const {id : studentId} = newData;
+        const {id : groupId} = newData.group;
+        if(Object.keys(data).length){
+            signInAPI.updateStudent(newData,data)
+                     .then(_ => this.props.back(studentId,groupId));
+        }else{
+            signInAPI.postStudent(newData).then(_ => this.props.back());
         }
-        signInAPI.postStudent(dataObj).then(_ => this.props.back());
+    }
+
+    remove = (studentId,groupId) => {
+        signInAPI.removeStudent(studentId,groupId).then(_ => this.props.index());
     }
 
     render() {
@@ -26,9 +35,10 @@ export default class StudentForm extends Component {
         return (
             <div className="StudentFormContainer">
                 <ContainerHeader backPage={back}/>
-                <Form field={signInAPI.getGroupFormFields()} 
-                      data={data}
-                      submit={this.submit}/>
+                <Form field     = {signInAPI.getGroupFormFields()} 
+                      data      = {data}
+                      submit    = {this.submit}
+                      remove    = {Object.keys(data).length ? this.remove : null}/>
             </div>
         )
     }

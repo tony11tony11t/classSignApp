@@ -15,7 +15,7 @@ export default class ClassroomList extends Component {
 
     getClassName = (data) => {
         const {markClassroom} = this.props;
-        return `classroom options ${markClassroom && (markClassroom.id == data.id) ? "mark" : ""}`
+        return `classroom options ${markClassroom && (markClassroom.id === data.id) ? "mark" : ""}`
     }
 
     render() {

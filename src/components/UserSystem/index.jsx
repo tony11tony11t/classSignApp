@@ -57,6 +57,7 @@ export default class UserSystem extends Component {
                                className  = "UserTable"/>
                     </div>
                 )
+            default : break;
         }
     }
 

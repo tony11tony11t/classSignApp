@@ -3,6 +3,10 @@
     padding: .8rem;
     box-sizing: border-box;
 }
+.MyLogTableWrap{
+    overflow: auto;
+    height: 70%;
+}
 .MyLogTotalWrap{
     display: flex;
     position: absolute;

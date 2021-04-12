@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import signInAPI from '../../../../signInAPI'
 import ContainerHeader from '../../../ContainerHeader'
+import { v4 as uuidv4 } from 'uuid';
 import './index.css'
 
 export default class StudentInfo extends Component {
@@ -8,7 +9,7 @@ export default class StudentInfo extends Component {
     getInfo = () => {
         const {data} = this.props
         return signInAPI.getPersonalHeadFields().map(label => (
-            <tr>
+            <tr key={uuidv4()}>
                 <td className={`label ${label["name"]}`}>{label["label"]}</td>
                 <td>{this.transfromValue(data[label["name"]])}</td>
             </tr>
@@ -16,11 +17,21 @@ export default class StudentInfo extends Component {
     }
 
     transfromValue = (v) => {
+        //如果是boolean值
         if(typeof v === "boolean"){
             return v ? "是" : "否"
-        }else{
-            return v
+        }else if(v === "true"){
+            return "是"
+        }else if(v === "false"){
+            return "否"
         }
+
+        //如果是object，抓name值
+        if(typeof v === "object"){
+            return v.name
+        }
+
+        return v
     }
 
     render() {
@@ -33,7 +44,7 @@ export default class StudentInfo extends Component {
             <div className="StudentInfoContainer">
                 <ContainerHeader buttons={btn} backPage={this.props.back}/>
                 <div className="StudentInfoBody">
-                    <table border="0" cellspacing="0" cellpadding="0">
+                    <table>
                         <tbody>
                             {this.getInfo()}
                         </tbody>

@@ -24,7 +24,7 @@ export default class LoginSystem extends Component {
     render() {
         return (
             <div className="LoginContainer">
-                <img src="../../img/login_logo.png"/>
+                <img src="../../img/login_logo.png" alt="logo"/>
                 <h2>圓月活學苑</h2>
                 <form>
                     <input type="text" placeholder="帳號" name="username" onChange={this.handleGetUsername}/><br/>

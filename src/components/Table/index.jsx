@@ -1,30 +1,38 @@
 import React, { Component } from 'react'
 import TableHead from './components/TableHead'
+import { v4 as uuidv4 } from 'uuid';
+
 import './index.css'
 
 export default class Table extends Component {
     showDivide = (content) => {
         if(content == null) return;
         
-        let dataLength = Object.keys(this.props.rowData[0].data[0]).filter(k => !k.includes("id")).length;
         return (
-            <tr>
-                <td colSpan={dataLength} className="DateDivide">{content}</td>
+            <tr key = {uuidv4()}>
+                <td  colSpan     = "100%" 
+                     className   = "DateDivide">
+                        {content}
+                </td>
             </tr>
         )
     }
     showRowData = (obj) => {
         const {showInfo} = this.props;
-        let onClick = showInfo != undefined ? showInfo.bind(this,obj["id"],obj["idGroup"]) : null;
-        let className = `Row ${showInfo != undefined ? "Clickable" : ""}`;
+        let onClick = showInfo !== undefined ? showInfo.bind(this,obj["id"],obj["idGroup"]) : null;
+        let className = `Row ${showInfo !== undefined ? "Clickable" : ""}`;
         return (
-            <tr className={className} onClick={onClick}>
+            <tr className = {className} 
+                onClick   = {onClick} 
+                key       = {uuidv4()}>
             {
                 Object.keys(obj).map(k => {
                     if(!k.includes("id")){
-                        return <td key={`${obj["id"]}_${k}`}>{this.transfromValue(obj[k])}</td>
+                        return <td key = {uuidv4()}>
+                                    {this.transfromValue(obj[k])}
+                                </td>
                     }
-                        
+                    return null;
                 })
             }
             </tr>
@@ -44,17 +52,18 @@ export default class Table extends Component {
     }
 
     render() {
+        const {className , fields , rowData} = this.props
         return (
-            <table className={`Table ${this.props.className}`}>
-                <TableHead fields={this.props.fields} />
-                <tbody>
+            <table className = {`Table ${className}`} key = {uuidv4()}>
+                <TableHead fields={fields} key = {uuidv4()}/>
+                <tbody key = {uuidv4()}>
                 {
-                    this.props.rowData.map(obj => {
+                    rowData.map(obj => {
                         return(
-                            <>
-                            {this.showDivide(obj["content"])}
-                            {obj["data"].map(data => this.showRowData(data))}
-                            </>
+                            <React.Fragment key={uuidv4()}>
+                                {this.showDivide(obj["content"])}
+                                {obj["data"].map(data => this.showRowData(data))}
+                            </React.Fragment>
                         )
                     })
                 }

@@ -6,94 +6,115 @@ import './index.css'
 export default class Form extends Component {
     state = {
         show : null, // "DatePicker" | "GroupList"
-
         groupList : [],
-
-        //個人資料
-        name : null,
-        group : null,
-        introducer : null,
-        relationship : null,
-        city : null,
-        career : null,
-        money : null,
-        reason : null
-
+        myData : {}
     }
 
     constructor(props){
         super(props);
-        //當組件建置時將時間設定成本地的今天
-        let date = new Date();
-        let y = date.getFullYear();
-        let m = date.getMonth() + 1;
-        let d = date.getDate();
 
-        this.state = {
-            ...this.state,
-            year    : y,
-            month   : m < 10 ? `0${m}` : m,
-            day     : d < 10 ? `0${d}` : d
-        };
+        //確認是否有資料傳入
+        const {data} = this.props
+        if(Object.keys(data).length){
+            //如果有，將資料設定為state的資料
+            this.state.myData = {...this.props.data};
+        }
+
+        //如果資料有startDate屬性，改寫他
+        const {myData} = this.state;
+        if(myData.startDate){
+            let date = myData.startDate.split("-");
+            this.updateMyData({
+                year  : date[0],
+                month : date[1],
+                day   : date[2]
+            })
+            delete this.state.myData.startDate;
+        }else{
+            let date = new Date();
+            let y = date.getFullYear();
+            let m = date.getMonth() + 1;
+            let d = date.getDate();
+    
+            this.updateMyData({
+                year    : y,
+                month   : m < 10 ? `0${m}` : m,
+                day     : d < 10 ? `0${d}` : d
+            });
+        }
     }
 
     componentDidMount = () => {
-        let groupList = []
+        let groupList = [];
         signInAPI.getGroupRowData().then(list => {
             list.forEach(item => {
-                let name = item.content;
-                let id = item.data[0].idGroup;
-                groupList.push({name , id});
+                groupList.push({
+                    name : item.content,
+                    id   : item.id
+                });
             })
             this.setState({groupList});
         })
     }
 
+    updateMyData = (newData = {}) => {
+        this.setState({myData : Object.assign(this.state.myData , newData)})
+    }
+
     getDate = date => {
         let {year , month , day} = date;
-        month = month < 10 ? `0${month}` : month;
-        day = day < 10 ? `0${day}` : day;
-        this.setState({year , month , day , show : null});
+        this.updateMyData({
+            year, 
+            month : month < 10 ? `0${month}` : month, 
+            day   : day < 10 ? `0${day}` : day
+        })
+        this.setState({show : null})
     }
 
     getFieldData = e => {
         let field = e.target.name;
         let value = e.target.value;
-        this.setState({[field]:value});
+        this.updateMyData({[field]:value})
     }
 
-    getGroup = data => this.setState({group : data , show : null})
+    getGroup = data => {
+        this.updateMyData({group:data})
+        this.setState({show : null})
+    }
 
-    showOptions = (name) => this.setState({show : this.state.show === name ? null : name});
+    showOptions = name => {
+        this.setState({show : this.state.show === name ? null : name});
+    }
 
     showFields = () => {
-        const {field,data} = this.props;
+        const {field} = this.props;
+        const {myData,show} = this.state;
+        const {year,month,day,group} = this.state.myData;
 
         return field.map(obj => {
             let valueHtml;
             let attr = {
                 type         : obj["type"] ,
                 name         : obj["name"] ,
-                defaultValue : data && data[obj["name"]],
+                defaultValue : myData[obj["name"]],
             }
             switch(obj["type"]){
                 case "text":
                     attr = Object.assign(attr , {
-                        placeholder : obj.placeholder,
+                        placeholder : obj["placeholder"],
                         onChange : this.getFieldData
                     })
                     valueHtml = <input {...attr}></input>
                     break;
                 case "button":
-                    if(obj["name"] == "startDate"){
-                        const {year,month,day} = this.state;
+                    if(obj["name"] === "startDate"){
                         attr = Object.assign(attr , {
-                            value : `${year}-${month}-${day}`,
+                            value   : `${year}-${month}-${day}`,
                             onClick : this.showOptions.bind(this,"DatePicker")
                         })
-                    }else if(obj["name"] == "group"){
+                    }else if(obj["name"] === "group"){
                         attr = Object.assign(attr , {
-                            value : this.state.group && this.state.group.name,
+                            value   : group && group.name,
                             onClick : this.showOptions.bind(this,"GroupList")
                         })
                     }
@@ -104,10 +125,11 @@ export default class Form extends Component {
                         <fieldset className={`${obj["name"]}Group`}>
                             {
                                 obj["options"].map(item => {
+                                    let name = item["name"];
                                     attr = Object.assign(attr , {
-                                        id : item["name"],
-                                        value : item["name"],
-                                        defaultChecked : data[item["name"]] || false
+                                        id : name,
+                                        value : name,
+                                        defaultChecked : myData[name] || false
                                     })
                                     return (
                                         <>
@@ -125,11 +147,12 @@ export default class Form extends Component {
                         <fieldset className={`${obj["name"]}Group`}>
                             {
                                 obj["options"].map(item => {
+                                    let name = item["name"]
                                     attr = Object.assign(attr , {
-                                        id : item["name"],
-                                        value : item["name"],
+                                        id : name,
+                                        value : name,
                                         onChange : this.getFieldData,
-                                        defaultChecked : String(data[obj["name"]]) == item["name"]
+                                        defaultChecked : String(myData[obj["name"]]) === name
                                     })
                                     return (
                                         <>
@@ -144,14 +167,14 @@ export default class Form extends Component {
                     break;
                 default:break;
             }
-            const {show} = this.state;
+
             return (
                 <>
                 <div className="field">
                     <label htmlFor={obj["name"]}>{obj["label"]}</label>
                     {valueHtml}
                 </div>
-                {show === "DatePicker" && obj["name"] === "startDate" ? <DatePicker getDate={this.getDate}/> : null}
+                {show === "DatePicker" && obj["name"] === "startDate" ? <DatePicker getDate={this.getDate} date={{year,month,day}}/> : null}
                 {show === "GroupList" && obj["name"] === "group" ? this.showGroupList() : null}
                 </>
             )
@@ -170,14 +193,36 @@ export default class Form extends Component {
             </ul>
         )
     }
+    showRemoveBtn = () => {
+        const {id : studentId} = this.state.myData;
+        const {id : groupId}   = this.state.myData.group;
+        const {remove}         = this.props;
+
+        return <button type         = "button" 
+                       className    = "remove" 
+                       onClick      = {remove.bind(this,studentId,groupId)}>
+                    刪除
+                </button>
+    }
+
+    showSubmitBtn = () => {
+        const {myData} = this.state;
+        const {submit} = this.props;
+
+        return <button type         = "button" 
+                       className    = "submit" 
+                       onClick      = {submit.bind(this,myData)}>
+                    儲存
+                </button>
+    }
 
     render() {
         return (
             <form className="EditForm">
                 {this.showFields()}
                 <div className="btnGroup">
-                    <button type="button" className="remove">刪除</button>
-                    <button type="button" className="submit" onClick={this.props.submit.bind(this,this.state)}>儲存</button>
+                    {this.props.remove ? this.showRemoveBtn() : null}
+                    {this.props.submit ? this.showSubmitBtn() : null}
                 </div>
             </form>
         )

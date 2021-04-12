@@ -11,7 +11,7 @@ export default class DatePicker extends Component {
         
         if(date){
             const {year , month , day} = date;
-            this.state = {year , month : parseInt(month) , day : parseInt(day)};
+            this.state = {year : parseInt(year) , month : parseInt(month) , day : parseInt(day)};
         }else{
             let date = new Date();
             this.state = {
@@ -27,7 +27,7 @@ export default class DatePicker extends Component {
     getMonthDaysCount = (years,month) => {
         var monthDay = [31,28,31,30,31,30,31,31,30,31,30,31];
         var isLeapYear = () => (years % 400 === 0) || (years % 4 === 0 && years % 100 !== 0);
-        return (month == 2 && isLeapYear()) ? 29 : monthDay[month - 1]
+        return (month === 2 && isLeapYear()) ? 29 : monthDay[month - 1]
     }
     getWeek = (year,month,day) => new Date(year , month - 1 , day).getDay();
 
@@ -35,7 +35,7 @@ export default class DatePicker extends Component {
         var dayCount = this.getMonthDaysCount(year,month);
         var space = this.getWeek(year,month,1);
         var spaceEnd = 7 - (dayCount + space) % 7;
-        var isPick = d => this.state.day == d ? 'pick' : '';
+        var isPick = d => this.state.day === d ? 'pick' : '';
 
         var body = [...Array(space).fill("") , 
                     ...Array.from({length:dayCount},(_,i)=> i + 1) ,
@@ -84,6 +84,7 @@ export default class DatePicker extends Component {
                     day   : null
                 });
             break;
+            default : break;
         }
     }
     handleClickDay = (day) => {
