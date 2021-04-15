@@ -53,8 +53,12 @@ class FirebaseAPI{
         return result;
     }
 
-    postData = async (ref , data) => {
-        await this.database.ref(ref).push(data);
+    postData = async (ref , data , set = false) => {
+        if(set){
+            await this.database.ref(ref).set(data);
+        }else{
+            await this.database.ref(ref).push(data);
+        }
     }
 
     updateData = (ref , key , data) => {
@@ -63,10 +67,6 @@ class FirebaseAPI{
 
     removeData = (ref , key) => {
         this.database.ref(`${ref}${key || ""}`).remove();
-    }
-
-    postClassroom = (name,normal,special,money) => {
-        this.database.ref('/classrooms').push().set({name,normal,special,money})
     }
 
 }

@@ -1,0 +1,6 @@
+.ResetPasswordContainer{
+    padding: .8rem;
+    height: 100%;
+    box-sizing: border-box;
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+}

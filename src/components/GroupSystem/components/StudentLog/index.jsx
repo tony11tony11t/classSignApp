@@ -15,22 +15,39 @@ export default class StudentLog extends Component {
 
     componentDidMount = () => {
         const {data} = this.props
+        this.refreshLogData(data["normalNum"] , data["specialNum"]);
+    }
+
+    deleteLog = (id,type) => {
+        signInAPI.removePersonalLog(id);
+
+        const {data : oldData} = this.props
+
+        let normalNum  = type === "一般" ? oldData.normalNum - 1  : oldData.normalNum;
+        let specialNum = type === "特殊" ? oldData.specialNum - 1  : oldData.specialNum;
+        let newData    = Object.assign(oldData , {normalNum,specialNum })
+
+        signInAPI.updateStudent(oldData , newData)
+        this.refreshLogData(normalNum,specialNum);
+        
+    }
+
+    refreshLogData = (normalNum,specialNum) => {
+        const {data} = this.props
+        signInAPI.getPersonalLogRowData(data.id).then(log => this.setState({log}));
         this.setState({record:[{
             name : "normal",
             label : "一般點名",
-            time : data["normalNum"]
+            time : normalNum
         },{
             name : "special",
             label : "特殊點名",
-            time : data["specialNum"]
+            time : specialNum
         },{
             name : "total",
             label : "總點名",
-            time : data["normalNum"] + data["specialNum"]
+            time : normalNum + specialNum
         }]})
-
-        signInAPI.getPersonalLogRowData(data.id).then(log => this.setState({log}));
-
     }
 
     render() {
@@ -38,7 +55,8 @@ export default class StudentLog extends Component {
             <div className="MyLogContainer">
                 <ContainerHeader backPage = {this.props.back}/>
                 <div className="MyLogTableWrap">
-                    <Table rowData   = {this.state.log} 
+                    <Table rowData   = {this.state.log}
+                           deleteLog = {this.deleteLog}
                            fields    = {signInAPI.getPersonalLogHeadFields()} 
                            className = "PersonalLogTable"/>
                 </div>

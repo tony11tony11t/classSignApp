@@ -25,3 +25,7 @@
 .Table .Clickable td{
     border-top: 2px solid white;
 }
+.Table tr td img{
+    width: 40%;
+    vertical-align: middle;
+}

@@ -38,6 +38,7 @@ export default class StudentForm extends Component {
                 <Form field     = {signInAPI.getGroupFormFields()} 
                       data      = {data}
                       submit    = {this.submit}
+                      subject   = "student"
                       remove    = {Object.keys(data).length ? this.remove : null}/>
             </div>
         )

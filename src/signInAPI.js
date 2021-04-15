@@ -17,9 +17,9 @@ class signInAPI{
                         let student = group.student[id];
                         let studentData = {
                             name : student["name"],
-                            total : student["normalNum"] + student["specialNum"],
                             normal : student["normalNum"],
                             special : student["specialNum"],
+                            total : student["normalNum"] + student["specialNum"],
                             money : student["money"],
                             id,
                             idGroup : key
@@ -104,7 +104,10 @@ class signInAPI{
     getClassroomData = async (id) => {
         let classroom;
         await FirebaseAPI.getData(FirebaseAPI.getClassroomPath(id)).then(d => {
-            classroom = d;
+            classroom = {
+                id,
+                ...d
+            }
         })
         return classroom;
     }
@@ -159,9 +162,10 @@ class signInAPI{
         await FirebaseAPI.getData(FirebaseAPI.getLogPath(),"",filter).then(list => {
             list.reverse().forEach(item => {
                 let data = {
-                    date : item["date"],
-                    classroom: item["classroom"],
-                    type : item["type"]
+                    date        : item["date"],
+                    classroom   : item["classroom"],
+                    type        : item["type"],
+                    id          : item["id"]
                 }
                 logList[0].data.push(data);
             })
@@ -240,17 +244,20 @@ class signInAPI{
     }
 
     updateStudent = async(newData , oldData) => {
-        const {name : newName , id : newId} = newData.group;
-        const {name : oldName , id : oldId} = oldData.group;
-
-        newData.group = newName;
+        let myNewData = Object.assign({},newData)
+        let myOldData = Object.assign({},oldData)
+        const {name : newName , id : newId} = myNewData.group;
+        const {name : oldName , id : oldId} = myOldData.group;
+        
+        myNewData.group = newName;
         if(newName === oldName){
-            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),newData.id,newData)
+            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),myNewData.id,myNewData)
         }else{
             //移動資料
-            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),newData.id,newData);
-            await FirebaseAPI.removeData(FirebaseAPI.getStudentPath(oldId),oldData.id)
+            await FirebaseAPI.updateData(FirebaseAPI.getStudentPath(newId),myNewData.id,myNewData);
+            await FirebaseAPI.removeData(FirebaseAPI.getStudentPath(oldId),myOldData.id)
         }
+        
         
     }
 
@@ -258,7 +265,7 @@ class signInAPI{
         await FirebaseAPI.removeData(FirebaseAPI.getStudentPath(groupId),studentId)
     }
 
-    searchGroupRowData = async (searchText) => {
+    searchGroupRowData = async searchText => {
         let GroupList = []
         await FirebaseAPI.getData(FirebaseAPI.getGroupPath()).then(groups => {
             Object.keys(groups).forEach(key => {
@@ -292,6 +299,33 @@ class signInAPI{
         return GroupList;
     }
 
+    removePersonalLog = async logId => {
+        await FirebaseAPI.removeData(FirebaseAPI.getLogPath(),logId)
+    }
+
+    postClassroom = async (data = {}) => {
+        await FirebaseAPI.postData(FirebaseAPI.getClassroomPath(),data);
+    }
+
+    updateClassroom = async (data = {}) => {
+        await FirebaseAPI.updateData(FirebaseAPI.getClassroomPath(),data.id,data)
+    }
+
+    removeClassroom = async classroomId => {
+        await FirebaseAPI.removeData(FirebaseAPI.getClassroomPath(),classroomId)
+    }
+
+    updatePassword = async password => {
+        await FirebaseAPI.updateData(FirebaseAPI.getUserPath(),this.username,{password})
+    }
+
+    removeUser = async () => {
+        await FirebaseAPI.removeData(FirebaseAPI.getUserPath(),this.username)
+    }
+
+    postUser = async (data = {}) => {
+        await FirebaseAPI.postData(FirebaseAPI.getUserPath(data.username),data,true)
+    }
 
 
 
@@ -304,16 +338,16 @@ class signInAPI{
                 width : "30%"
             }],
             [{
-                name : "總數",
-                className : "title"
-            }],
-            [{
                 name : "一般",
                 className : "normal"
             }],
             [{
                 name : "特殊",
                 className : "special"
+            }],
+            [{
+                name : "總數",
+                className : "title"
             }],
             [{
                 name : "付費",
@@ -375,6 +409,34 @@ class signInAPI{
                 name : "reason",
                 label : "入會原因",
                 placeholder : "寫點什麼吧......"
+            }
+        ]
+        return formField;
+    }
+
+    getUserFormFields = () => {
+        let formField = [
+            {
+                type : "text",
+                name : "username",
+                label : "帳號",
+                placeholder : "username"
+            },{
+                type : "text",
+                name : "password",
+                label : "密碼",
+                placeholder : "password"
+            },{
+                type : "radio",
+                name : "role",
+                label : "權限",
+                options : [{
+                    name : "normal",
+                    label : "一般"
+                },{
+                    name : "admin",
+                    label : "管理者"
+                }]
             }
         ]
         return formField;
@@ -485,6 +547,10 @@ class signInAPI{
                 name : "類型",
                 className : "type",
                 width : "20%"
+            }],
+            [{
+                name : "刪除",
+                className : "delete",
             }]
         ];
         return headField;

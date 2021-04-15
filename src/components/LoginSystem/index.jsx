@@ -12,6 +12,7 @@ export default class LoginSystem extends Component {
         const {username,password} = this.state;
         signInAPI.login(username,password).then(result => {
             if(result === 200){
+                signInAPI.username = username
                 this.props.changePage("signIn")
             }else{
                 this.setState({tips:result})

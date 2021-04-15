@@ -32,7 +32,11 @@ export default class ClassroomSystem extends Component {
         }
     }
 
-    getIndex = () => this.setState({page : "index"});
+    getIndex = () => {
+        signInAPI.getClassroomsRowData().then(classroomList => {
+            this.setState({classroomList , page : "index"})
+        })
+    }
 
     showContent = () => {
         const {page , classroomList , classroom} = this.state;

@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 export default class App extends Component {
 
   state = {
-    system : "group" // "group" | "log" | "signIn" | "class" | "user" | "login" 
+    system : "class" // "group" | "log" | "signIn" | "class" | "user" | "login" 
   }
 
   changeSystem = (system) => this.setState({system});
@@ -28,7 +28,7 @@ export default class App extends Component {
       case 'class':
         return <ClassroomSystem />
       case 'user':
-        return <UserSystem />
+        return <UserSystem changePage={this.changeSystem}/>
       case 'login':
         return <LoginSystem changePage={this.changeSystem}/>
       default : break;

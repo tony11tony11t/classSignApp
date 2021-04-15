@@ -19,11 +19,15 @@ export default class Table extends Component {
     }
     showRowData = (obj) => {
         const {showInfo} = this.props;
-        let onClick = showInfo !== undefined ? showInfo.bind(this,obj["id"],obj["idGroup"]) : null;
-        let className = `Row ${showInfo !== undefined ? "Clickable" : ""}`;
+
+        let onClickEvent = () => {
+            if(showInfo){
+                return showInfo.bind(this,obj["id"],obj["idGroup"])
+            }
+        }
         return (
-            <tr className = {className} 
-                onClick   = {onClick} 
+            <tr className = {`Row ${showInfo ? "Clickable" : ""}`} 
+                onClick   = {onClickEvent()} 
                 key       = {uuidv4()}>
             {
                 Object.keys(obj).map(k => {
@@ -35,6 +39,7 @@ export default class Table extends Component {
                     return null;
                 })
             }
+            {this.getDeleteBtn(obj)}
             </tr>
         )
     }
@@ -48,6 +53,19 @@ export default class Table extends Component {
             return ""
         }else{
             return v
+        }
+    }
+
+    getDeleteBtn = obj => {
+        const {fields,deleteLog} = this.props
+        if(fields.find(field => field[0] && field[0].className === "delete")){
+            return (
+                <td>
+                    <img src     = "../img/global_btn_close.png" 
+                         alt     = "delete" 
+                         onClick = {deleteLog.bind(this,obj["id"],obj["type"])}/>
+                </td>
+            )
         }
     }
 
