@@ -20,7 +20,9 @@ export default class StudentForm extends Component {
         const {id : groupId} = newData.group;
         if(Object.keys(data).length){
             signInAPI.updateStudent(newData,data)
-                     .then(_ => this.props.back(studentId,groupId));
+                     .then(newGroupId => {
+                        this.props.back(studentId,newGroupId || groupId)
+                     });
         }else{
             signInAPI.postStudent(newData).then(_ => this.props.back());
         }

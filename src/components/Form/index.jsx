@@ -6,9 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default class Form extends Component {
     state = {
-        show : null, // "DatePicker" | "GroupList"
-        groupList : [],
-        myData : {}
+        show        : null, // "DatePicker" | "GroupList"
+        groupList   : [],
+        userList    : [],
+        myData      : {},
+        submitEvent : true
     }
 
     constructor(props){
@@ -20,6 +22,23 @@ export default class Form extends Component {
         if(data && Object.keys(data).length){
             //如果有，將資料設定為state的資料
             this.state.myData = {...this.props.data};
+        }else{
+            const {field} = this.props;
+            field.forEach(obj => {
+                switch(obj["type"]){
+                    case "text"  :
+                    case "radio" :
+                    case "button":
+                        this.state.myData[obj["name"]] = ""
+                        break;
+                    case "checkbox":
+                        obj["options"].forEach(option => {
+                            this.state.myData[option["name"]] = false
+                        })
+                        break;
+                    default : break;
+                }
+            })
         }
     }
 
@@ -37,29 +56,28 @@ export default class Form extends Component {
 
         //如果資料有startDate屬性，改寫他
         const {myData} = this.state;
-        if(myData.startDate){
-            let date = myData.startDate.split("-");
+        if(!myData.startDate){
             this.updateMyData({
-                year  : date[0],
-                month : date[1],
-                day   : date[2]
-            })
-            delete this.state.myData.startDate;
-        }else{
-            let date = new Date();
-            let y = date.getFullYear();
-            let m = date.getMonth() + 1;
-            let d = date.getDate();
-
-            this.updateMyData({
-                year    : y,
-                month   : m < 10 ? `0${m}` : m,
-                day     : d < 10 ? `0${d}` : d
+                startDate : signInAPI.getToday(),
             })
         }
     }
 
     initClassroomForm = () => {
+        let userList = [];
+        signInAPI.getUserRowData().then(list => {
+            list[0].data.forEach(item => {
+                userList.push({
+                    id   : item.id
+                });
+            })
+            this.setState({userList});
+        })
+
+        let {user} = this.state.myData
+        this.updateMyData({
+            user : new Set(user)
+        })
 
     }
 
@@ -76,90 +94,130 @@ export default class Form extends Component {
         }
     }
 
-    updateMyData = (newData = {}) => {
-        this.setState({myData : Object.assign(this.state.myData , newData)})
+    updateMyData = (newData = {} , otherData = {}) => {
+        this.setState({myData : {
+            ...this.state.myData,
+            ...newData
+        } , ...otherData})
     }
 
     getDate = date => {
-        let {year , month , day} = date;
         this.updateMyData({
-            year, 
-            month : month < 10 ? `0${month}` : month, 
-            day   : day < 10 ? `0${day}` : day
+            startDate : date,
+        } , {
+            show      : null
         })
-        this.setState({show : null})
     }
 
     getFieldData = e => {
-        let field = e.target.name;
-        let value = e.target.value;
-        this.updateMyData({[field]:value})
+        this.updateMyData({
+            [e.target.name] : e.target.value
+        },{
+            showTips        : false
+        })
     }
     getCheckBoxData = e => {
-        let field = e.target.value;
-        let value = e.target.checked;
-        this.updateMyData({[field]:value})
+        this.updateMyData({
+            [e.target.value] : e.target.checked
+        })
     }
 
     getGroup = data => {
-        this.updateMyData({group:data})
-        this.setState({show : null})
+        if(data){
+            this.updateMyData({
+                group : data
+            },{
+                show  : null
+            })
+        }else{
+            this.updateMyData({
+                group : {
+                    id   : null , 
+                    name : this.state.tempGroup
+                }
+            },{
+                show  : null
+            })
+        }
     }
 
     showOptions = name => {
-        this.setState({show : this.state.show === name ? null : name});
+        this.setState({
+            show : this.state.show === name ? null : name
+        });
     }
 
     showFields = () => {
-        const {field} = this.props;
-        const {myData,show} = this.state;
-        const {year,month,day,group} = this.state.myData;
+        const {field}             = this.props;
+        const {myData    , show}  = this.state;
+        const {startDate , group , user} = this.state.myData;
 
         return field.map(obj => {
+            const { name        : fieldName , 
+                    type        : fieldType , 
+                    placeholder : fieldPlaceholder , 
+                    options     : fieldOptions,
+                    label       : fieldLabel} = obj;
             let valueHtml;
             let attr = {
-                type         : obj["type"] ,
-                name         : obj["name"] ,
-                defaultValue : myData[obj["name"]]
+                type    : fieldType,
+                name    : fieldName
             }
-            switch(obj["type"]){
+
+            switch(fieldType){
                 case "text":
-                    attr = Object.assign(attr , {
-                        placeholder : obj["placeholder"],
-                        onChange : this.getFieldData
-                    })
+                    attr = {
+                        ...attr ,
+                        onBlur       : this.getFieldData,
+                        placeholder  : fieldPlaceholder,
+                        defaultValue : myData[fieldName]
+                    }
+
                     valueHtml = <input {...attr}></input>
                     break;
                 case "button":
-                    if(obj["name"] === "startDate"){
-                        attr = Object.assign(attr , {
-                            value   : `${year}-${month}-${day}`,
-                            onClick : this.showOptions.bind(this,"DatePicker")
-                        })
-                    }else if(obj["name"] === "group"){
-                        attr = Object.assign(attr , {
+                    if(fieldName === "startDate"){
+                        attr = {
+                            ...attr ,
+                            value   : startDate,
+                            onClick : this.showOptions.bind(this , "DatePicker")
+                        }
+                    }else if(fieldName === "group"){
+                        attr = {
+                            ...attr ,
                             value   : group && group.name,
-                            onClick : this.showOptions.bind(this,"GroupList")
-                        })
+                            onClick : this.showOptions.bind(this , "GroupList")
+                        }
+                    }else if(fieldName === "user"){
+                        attr = {
+                            ...attr ,
+                            value   : [...(user || [])],
+                            onClick : this.showOptions.bind(this , "UserList")
+                        }
                     }
+
                     valueHtml = <input {...attr}></input>
                     break;
                 case "checkbox":
                     valueHtml = (
-                        <fieldset className={`${obj["name"]}Group`}>
+                        <fieldset className = {`${fieldName}Group`}>
                             {
-                                obj["options"].map(item => {
-                                    let name = item["name"];
-                                    attr = Object.assign(attr , {
-                                        id : name,
-                                        value : name,
-                                        onChange : this.getCheckBoxData,
-                                        defaultChecked : myData[name] || false
-                                    })
+                                fieldOptions.map(item => {
+                                    const {name , label} = item;
+                                    attr = {
+                                        ...attr ,
+                                        id              : name,
+                                        value           : name,
+                                        onChange        : this.getCheckBoxData,
+                                        defaultChecked  : myData[name] || false
+                                    }
                                     return (
-                                        <React.Fragment key={uuidv4()}>
+                                        <React.Fragment key = {uuidv4()}>
                                             <input {...attr}/>
-                                            <label htmlFor={attr.id}>{item["label"]}</label><br/>
+                                            <label htmlFor = {name}>
+                                                {label}
+                                            </label>
+                                            <br/>
                                         </React.Fragment>
                                     )
                                 })
@@ -169,20 +227,24 @@ export default class Form extends Component {
                     break;
                 case "radio":
                     valueHtml = (
-                        <fieldset className={`${obj["name"]}Group`}>
+                        <fieldset className={`${fieldName}Group`}>
                             {
-                                obj["options"].map(item => {
-                                    let name = item["name"]
-                                    attr = Object.assign(attr , {
-                                        id : name,
-                                        value : name,
-                                        onChange : this.getFieldData,
-                                        defaultChecked : String(myData[obj["name"]]) === name
-                                    })
+                                fieldOptions.map(item => {
+                                    const {name , label} = item;
+                                    attr = {
+                                        ...attr ,
+                                        id              : name,
+                                        value           : name,
+                                        onChange        : this.getFieldData,
+                                        defaultChecked  : String(myData[fieldName]) === name
+                                    }
                                     return (
-                                        <React.Fragment key={uuidv4()}>
+                                        <React.Fragment key = {uuidv4()}>
                                             <input {...attr}/>
-                                            <label htmlFor={attr.id}>{item["label"]}</label><br/>
+                                            <label htmlFor={name}>
+                                                {label}
+                                            </label>
+                                            <br/>
                                         </React.Fragment>
                                     )
                                 })
@@ -193,31 +255,97 @@ export default class Form extends Component {
                 default:break;
             }
 
+
             return (
                 <React.Fragment key={uuidv4()}>
                     <div className="field">
-                        <label htmlFor={obj["name"]}>{obj["label"]}</label>
+                        <label htmlFor={fieldName}>
+                            {fieldLabel}
+                        </label>
                         {valueHtml}
                     </div>
-                    {show === "DatePicker" && obj["name"] === "startDate" ? <DatePicker getDate={this.getDate} date={{year,month,day}}/> : null}
-                    {show === "GroupList" && obj["name"] === "group" ? this.showGroupList() : null}
+                    {this.showDatePicker(show , fieldName)}
+                    {this.showGroupList(show , fieldName)}
+                    {this.showUserList(show , fieldName)}
                 </React.Fragment>
             )
         })
     }
-     
-    showGroupList = () => {
-        const {groupList} = this.state;
+    getUser = (user) => {
+        const {user : userList} = this.state.myData;
+        const {id} = user;
+        if(userList.has(id)){
+            userList.delete(id)
+        }else{
+            userList.add(id)
+        }
+        this.updateMyData({
+            user : userList
+        })
+    }
+
+    showUserList = (show , fieldName) => {
+        if(show !== "UserList" || fieldName !== "user")
+            return;
+
+        const {userList} = this.state;
         return (
-            <ul>
-            {
-                groupList.map(data => 
-                    <li key={uuidv4()} onClick={this.getGroup.bind(this,data)}>{data.name}</li>
-                )
-            }
-            </ul>
+            <React.Fragment>
+                <ul>
+                {
+                    userList.map(data => 
+                        <li key     = {uuidv4()} 
+                            onClick = {this.getUser.bind(this,data)}>
+                            {data.id}
+                        </li>
+                    )
+                }
+                </ul>
+            </React.Fragment>
         )
     }
+
+    showDatePicker = (show , fieldName) => {
+        if(show !== "DatePicker" || fieldName !== "startDate")
+            return;
+
+        const {startDate} = this.state.myData;
+        return <DatePicker getDate={this.getDate} date={startDate}/>
+    }
+     
+    showGroupList = (show , fieldName) => {
+        if(show !== "GroupList" || fieldName !== "group" )
+            return;
+
+        const {groupList} = this.state;
+        return (
+            <React.Fragment>
+                <ul>
+                {
+                    groupList.map(data => 
+                        <li key     = {uuidv4()} 
+                            onClick = {this.getGroup.bind(this,data)}>
+                            {data.name}
+                        </li>
+                    )
+                }
+                    <div className="newGroup">
+                        <input placeholder  = "輸入新組別" 
+                               value        = {this.state.tempGroup} 
+                               onChange     = {this.tempSaveGroup}/>
+                        <button onClick = {this.getGroup.bind(this,null)}>
+                            確定
+                        </button>
+                    </div>
+                </ul>
+            </React.Fragment>
+        )
+    }
+
+    tempSaveGroup = e => {
+        this.setState({tempGroup : e.target.value})
+    }
+
     showRemoveBtn = () => {
         const {remove , subject} = this.props;
         var onClick;
@@ -238,20 +366,47 @@ export default class Form extends Component {
     }
 
     showSubmitBtn = () => {
-        const {myData} = this.state;
-        const {submit} = this.props;
+
+        const {submitEvent} = this.state;
+        
+        let submit = () => {
+            const {myData} = this.state;
+            const {submit} = this.props;
+
+            this.setState({submitEvent : false});
+
+            if(this.checkField()){
+                return submit.bind(this,myData)()
+            }else{
+                this.setState({showTips : true})
+            }
+        }
+        
 
         return <button type         = "button" 
                        className    = "submit" 
-                       onClick      = {submit.bind(this,myData)}>
+                       onClick      = {submitEvent ? submit : null}>
                     儲存
                 </button>
     }
 
+    checkField = () => {
+        const {myData} = this.state
+        let result     = true;
+        Object.keys(myData).forEach(field => {
+            if(myData[field] === ""){
+                result = false;
+            }
+        })
+        return result;
+    }
+
     render() {
+        const {showTips} = this.state
         return (
             <form className="EditForm">
                 {this.showFields()}
+                {showTips ? <p className="FormTips">資料填寫不完整</p> : null}
                 <div className="btnGroup">
                     {this.props.remove ? this.showRemoveBtn() : null}
                     {this.props.submit ? this.showSubmitBtn() : null}

@@ -7,6 +7,8 @@ import './index.css'
 export default class ClassroomEdit extends Component {
     submit = newData => {
         const {back,data} = this.props;
+
+        newData.user = [...newData.user];
         if(Object.keys(data).length){
             signInAPI.updateClassroom(newData).then(_ =>back())
         }else{

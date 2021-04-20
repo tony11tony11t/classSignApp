@@ -1,64 +1,107 @@
 import React, { Component } from 'react'
-import ClassroomList from './components/ClassroomList'
-import ClassList from './components/ClassList'
-import DatePicker from '../DatePicker'
-import StudentList from './components/StudentList'
-import Header from '../Header'
+import ClassroomList        from './components/ClassroomList'
+import StudentList          from './components/StudentList'
+import ClassList            from './components/ClassList'
+import DatePicker           from '../DatePicker'
+import Header               from '../Header'
+import signInAPI            from '../../signInAPI'
 import './index.css'
-import signInAPI from '../../signInAPI'
 
 export default class SignInSystem extends Component {
 
     state = {
-        show : null, // "DatePicker" | "ClassroomList" | "ClassType" | "Student" | null
+        /**
+         * Decide which component will be shown
+         */
+        show        : null, // "date" | "classroom" | "classType" | "students" | null
+
+        /**
+         * Whether or not submit button can submit an event
+         */
+        submitEvent : true,
         
-        //點名資料儲存
-        classroom:null,
-        students:null,
-        classType:null,
-        date:null
+        /**
+         * Save the classroom information which are user choose
+         */
+        classroom   : null,
+
+        /**
+         * Save the students which are user choose
+         */
+        students    : null,
+
+        /**
+         * Save the class type which are user choose
+         */
+        classType   : null,
+
+        
+        /**
+         * Save the date which are user choose
+         */
+        date        : null
     }
+
     constructor(props){
         super(props);
-        //當組件建置時將時間設定成本地的今天
-        let date = new Date();
-        let y = date.getFullYear();
-        let m = date.getMonth() + 1;
-        let d = date.getDate();
-        
-        this.state.date = {
-            year    : y,
-            month   : m < 10 ? `0${m}` : m,
-            day     : d < 10 ? `0${d}` : d
-        };
+
+        //Set today's date for the state when the element construct
+        this.state.date = signInAPI.getToday();
     }
 
-    getDate = date => {
-        let {year , month , day} = date;
-        month = month < 10 ? `0${month}` : month;
-        day = day < 10 ? `0${day}` : day;
-        this.setState({date : {year , month , day}});
-    }
+    /**
+     * Set date for the state
+     * @param {String} date date string,the format is {yyyy-mm-dd}
+     */
+    getDate = date => this.setState({date});
 
+    /**
+     * Set classroom information for the state
+     * @param {Object} classroom classroom information
+     */
     getClassroom = classroom => {
-        this.setState({classroom , classType:null});
-        this.showOptions("ClassroomList");
+        //When the user resets classroom information, class type and students data will be clear
+        this.setState({
+            classroom , 
+            classType   : null , 
+            students    : null
+        });
+
+        //Hide the element of classrooms list
+        this.showOptions("classroom");
     }
     
+    /**
+     * Set class type for the state
+     * @param {Object} classType class type
+     */
     getClassType = classType => {
-        this.setState({classType});
-        this.showOptions("ClassType");
+        //When the user resets class type, students data will be clear
+        this.setState({
+            classType , 
+            students    : null});
+
+        //Hide the element of class types list
+        this.showOptions("classType");
     }
     
+    /**
+     * Set students information for the state
+     * @param {Object} student students information
+     */
     getStudents = student => {
         let {students} = this.state;
+
         if(students){
-            let listStudent = [...students].find(s => s.id === student.id)
-            if(listStudent){
-                students.delete(listStudent);
+            let selectedStudent = [...students].find(s => s.id === student.id)
+            if(selectedStudent){
+
+                students.delete(selectedStudent);
+
                 if(students.size === 0){
                     students = null;
                 }
+                
             }else{
                 students.add(student);
             }
@@ -68,47 +111,123 @@ export default class SignInSystem extends Component {
         this.setState({students});
     }
 
-    showOptions = (name) => this.setState({show : this.state.show === name ? null : name});
-    
+    /**
+     * Change component for the state
+     * @param {String} name  component name
+     */
+    showOptions = name => this.setState({show : this.state.show === name ? null : name});
+
+    /**
+     * If the specified type of data has been full,return 'finish' string
+     * @param {String} type data type
+     * @returns {String} 
+     */
     isFinish = type => this.state[type] ? 'finish' : '';
 
-    showStudentList = students => 
-                        [...students].reduce(
-                            (list,student,i) => 
-                                `${list}${i === 0 ? "" : ","}${student.name}`,""
-                        );
+    /**
+     * Return the sentence of all student name which has been selected
+     * @param {Set} students students list
+     * @returns {String}
+     */
+    showStudentList = students => {
+        return [...students].reduce(
+            (list , student , i) => 
+                `${list}${i === 0 ? "" : ","}${student.name}`,""
+        );
+    }
 
+    /**
+     * Return submit button
+     * @returns {Component}
+     */
     showSubmitBtn = () => {
-        const {date,classroom,classType,students} = this.state;
+        const {date , classroom , classType , students , submitEvent} = this.state;
+
         let attr = {
-            type : 'button',
-            className : 'submit inactivated',
-            onClick : null
+            type        : 'button',
+            className   : 'submit inactivated',
+            onClick     : null
         }
+
+        let handleSubmit = () => {
+            this.setState({submitEvent : false})
+            signInAPI.postSignInLog(date , classroom , classType , students).then(_ => {
+                this.props.changePage("log");
+            });
+        }
+
         if(date && classroom && classType && students){
-            attr = Object.assign(attr , {
-                className : 'submit',
-                onClick : this.handleSubmit
-            })
+            attr = {
+                ...attr,
+                className   : 'submit',
+                onClick     : submitEvent ? handleSubmit : null
+            }
         }
+
         return <button {...attr}>點名</button>
     }
 
-    handleSubmit = () => {
-        const {date,classroom,classType,students} = this.state;
-        signInAPI.postSignInLog(date,classroom,classType,students).then(_ => {
-            this.props.changePage("log");
-        });
-        
+    /**
+     * Ruturn button which can choose specified data
+     * @param {String} type data type
+     * @param {String} content btton text
+     * @param {Boolean | Object} filter Whether or not button has enable condition
+     * @returns {Component}
+     */
+    showFormBtn = (type , content , filter = false) => {
+
+        let attr = {
+            className  : this.isFinish(type),
+            type       : 'button',
+            onClick    : this.showOptions.bind(this , type)
+        }
+
+        if(filter){
+            attr = {
+                ...attr,
+                className : `${filter ? '' : 'inactivated'} ${this.isFinish(type)}`,
+                onClick   : filter ? this.showOptions.bind(this , type) : null
+            }
+        }
+
+        return <button {...attr}>{content}</button>
+    }
+
+    /**
+     * Return specified component
+     * @param {String} type data type
+     * @returns {Component}
+     */
+    showOptionList = type => {
+        const {show} = this.state;
+
+        if(show !== type)   return;
+
+        const {date , classroom , classType , students} = this.state;
+
+        switch(show){
+            case "date":
+                return <DatePicker      getDate       = {this.getDate} 
+                                        date          = {date} />
+            case "classroom":
+                return <ClassroomList   getClassroom  = {this.getClassroom} 
+                                        markClassroom = {classroom} />
+            case "classType":
+                return <ClassList       getClassType  = {this.getClassType} 
+                                        markClassType = {classType}
+                                        normal        = {classroom.normal}
+                                        special       = {classroom.special} /> 
+            case "students":
+                return <StudentList     getStudents   = {this.getStudents} 
+                                        markStudents  = {students}
+                                        classType     = {classType} />
+            default:break;
+        }
     }
     
-
     render() {
-        const { show,
-                date,
-                classroom,
-                classType,
-                students} = this.state;
+        
+        const {date , classroom , classType , students} = this.state;
 
         return (
             <div className='signInContainer'>
@@ -116,51 +235,17 @@ export default class SignInSystem extends Component {
                 <div className='signInWrap'>
                     <form>
                         <div className='signInFormWrap'>
-                            <button className   = {this.isFinish('date')} 
-                                    type        = 'button' 
-                                    onClick     = {this.showOptions.bind(this,"DatePicker")}>
-                                {`${date.year}-${date.month}-${date.day}`}
-                            </button>
-                            {show === "DatePicker" ? 
-                                <DatePicker getDate   = {this.getDate} 
-                                            date        = {date}/> 
-                                : null
-                            }
+                            {this.showFormBtn("date" , date)}
+                            {this.showOptionList("date")}
 
-                            <button className   = {this.isFinish('classroom')} 
-                                    type        = 'button' 
-                                    onClick     = {this.showOptions.bind(this,"ClassroomList")}>
-                                {classroom ? classroom.name : '選擇教室'}
-                            </button>
-                            {show === "ClassroomList" ? 
-                                <ClassroomList getClassroom     = {this.getClassroom} 
-                                               markClassroom    = {classroom} /> 
-                                : null
-                            }
+                            {this.showFormBtn("classroom" , classroom ? classroom.name : '選擇教室')}
+                            {this.showOptionList("classroom")}
+
+                            {this.showFormBtn("classType" , classType ? classType : '選擇課程' , classroom)}
+                            {this.showOptionList("classType")}
                             
-                            <button className   = {`${classroom ? '' : 'inactivated'} ${this.isFinish('classType')}`} 
-                                    type        = 'button' 
-                                    onClick     = {classroom ? this.showOptions.bind(this,"ClassType") : null}>
-                                {classType ? classType : '選擇課程'}
-                            </button>
-                            {show === "ClassType" ? 
-                                <ClassList getClassType     = {this.getClassType} 
-                                           markClassType    = {classType}
-                                           normal           = {classroom.normal}
-                                           special          = {classroom.special} /> 
-                                : null
-                            }
-                            
-                            <button className   = {this.isFinish('students')} 
-                                    type        = 'button' 
-                                    onClick     = {this.showOptions.bind(this,"Student")}>
-                                {students ? this.showStudentList(students) : '選擇學員'}
-                            </button>
-                            {show === "Student" ? 
-                                <StudentList getStudents  = {this.getStudents} 
-                                             markStudents = {students} />
-                                : null
-                            }
+                            {this.showFormBtn("students" , students ? this.showStudentList(students) : '選擇學員' , classType)}
+                            {this.showOptionList("students")}
                         </div>
                         {this.showSubmitBtn()}
                     </form>

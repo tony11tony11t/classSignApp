@@ -12,7 +12,14 @@ import React, { Component } from 'react'
 export default class App extends Component {
 
   state = {
-    system : "class" // "group" | "log" | "signIn" | "class" | "user" | "login" 
+    system : "signIn" // "group" | "log" | "signIn" | "class" | "user" | "login" 
+  }
+
+  constructor(props){
+    super(props);
+    /*if(signInAPI.username){
+      this.state.system = "signIn"
+    }*/
   }
 
   changeSystem = (system) => this.setState({system});

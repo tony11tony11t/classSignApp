@@ -40,8 +40,12 @@ export default class ClassroomSystem extends Component {
 
     showContent = () => {
         const {page , classroomList , classroom} = this.state;
+        
         switch(page){
             case "index" :
+                if(classroomList.length > 0){
+                    classroomList[0].data.forEach(info => delete info.user)
+                }
                 return <Table rowData   = {classroomList} 
                               fields    = {signInAPI.getClassroomHeadFields()} 
                               className = "ClassroomTable"

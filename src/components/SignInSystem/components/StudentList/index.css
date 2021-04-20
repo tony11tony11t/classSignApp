@@ -3,6 +3,9 @@
 }
 .StudentsList{
     margin: .5rem .5rem 0 .5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 .GroupsList .options{
     margin: 0 auto;
@@ -12,10 +15,19 @@
     font-size: .8rem;
     border-radius: .5rem;
 }
-.StudentsList .options{
-    margin-top: .5rem;
-    padding:.5rem
+.GroupsList .options span{
+    font-weight: 600;
 }
 .GroupsList .options.mark{
     background-color: #FFEEB2;
 }
+.StudentsList .options{
+    margin: 1%;
+    padding:.5rem;
+    flex:0 0 30%;
+    text-align: center;
+}
+.StudentsList .options.inactivated{
+    color: #A8A8A8;
+}
+

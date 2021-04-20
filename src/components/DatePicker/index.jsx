@@ -3,17 +3,22 @@ import './index.css'
 
 export default class DatePicker extends Component {
     months = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
-    weeks = ['日','一','二','三','四','五','六'];
-    state = {}
+    weeks  = ['日','一','二','三','四','五','六'];
+    state  = {}
+
     constructor(props){
         super(props);
         const {date} = this.props;
         
         if(date){
-            const {year , month , day} = date;
-            this.state = {year : parseInt(year) , month : parseInt(month) , day : parseInt(day)};
+            let dateBlock = date.split("-");
+            this.state = {
+                year  : parseInt(dateBlock[0]) , 
+                month : parseInt(dateBlock[1]) , 
+                day   : parseInt(dateBlock[2])
+            };
         }else{
-            let date = new Date();
+            let date   = new Date();
             this.state = {
                 year    : date.getFullYear(),
                 month   : date.getMonth() + 1,
@@ -24,25 +29,27 @@ export default class DatePicker extends Component {
 
 
 
-    getMonthDaysCount = (years,month) => {
-        var monthDay = [31,28,31,30,31,30,31,31,30,31,30,31];
+    getMonthDaysCount = (years , month) => {
+        var monthDay   = [31,28,31,30,31,30,31,31,30,31,30,31];
         var isLeapYear = () => (years % 400 === 0) || (years % 4 === 0 && years % 100 !== 0);
+
         return (month === 2 && isLeapYear()) ? 29 : monthDay[month - 1]
     }
-    getWeek = (year,month,day) => new Date(year , month - 1 , day).getDay();
+    getWeek = (year , month , day) => new Date(year , month - 1 , day).getDay();
 
     getMonthBody = (year,month) => {
-        var dayCount = this.getMonthDaysCount(year,month);
-        var space = this.getWeek(year,month,1);
+        var dayCount = this.getMonthDaysCount(year , month);
+        var space    = this.getWeek(year , month , 1);
         var spaceEnd = 7 - (dayCount + space) % 7;
-        var isPick = d => this.state.day === d ? 'pick' : '';
 
-        var body = [...Array(space).fill("") , 
-                    ...Array.from({length:dayCount},(_,i)=> i + 1) ,
-                    ...Array(spaceEnd).fill("")];
-        var result = [];
+        var isPick   = d => this.state.day === d ? 'pick' : '';
 
-        var isSelect =  d => {
+        var result   = [];
+        var body     = [...Array(space).fill("") , 
+                        ...Array.from({length : dayCount} , (_ , i)=> i + 1) ,
+                        ...Array(spaceEnd).fill("")];
+
+        var isSelect = d => {
             const {year , month} = this.state;
             if(new Date().getTime() < new Date(year , month - 1 , d).getTime()){
                 return false
@@ -55,7 +62,7 @@ export default class DatePicker extends Component {
                 {
                     body.slice(i * 7 , i * 7 + 7).map(num =>{
                         let attr = {
-                            className : num ? `DatePicker-day ${isPick(num)} ${isSelect(num) ? "" : "disable"}`    : 'DatePicker-day space',
+                            className : num ? `DatePicker-day ${isPick(num)} ${isSelect(num) ? "" : "disable"}` : 'DatePicker-day space',
                             onClick   : num && isSelect(num) ? this.handleClickDay.bind(this,num) : null
                         }
                         return <div {...attr}>{num}</div>
@@ -67,7 +74,7 @@ export default class DatePicker extends Component {
         return result;
     }
     handleChangeMonth = (action) => {
-        const {month,year} = this.state;
+        const {month , year} = this.state;
 
         switch(action){
             case 'prev':
@@ -90,26 +97,37 @@ export default class DatePicker extends Component {
     handleClickDay = (day) => {
         this.setState({day});
         if(this.props.getDate){  
-            this.props.getDate({...this.state , day});
+            let {year , month} = this.state;
+
+            month = month < 10 ? `0${month}` : month;
+            day   = day < 10   ? `0${day}`   : day;
+            
+            this.props.getDate(`${year}-${month}-${day}`);
         }
     }
 
     render() {
         const {month , year} = this.state;
         return (
-            <div className='DatePicker'>
-                <div className='DatePicker-wrap'>
-                    <div className='DatePicker-header'>
-                        <span className="DatePicker-prevBtn arrow" onClick={this.handleChangeMonth.bind(this,'prev')}></span>
-                        <div className="DatePicker-monthsAndYears">{`${year}年 ${month}月 `}</div>
-                        <span className="DatePicker-nextBtn arrow" onClick={this.handleChangeMonth.bind(this,'next')}></span>
+            <div className = 'DatePicker'>
+                <div className = 'DatePicker-wrap'>
+                    <div className = 'DatePicker-header'>
+                        <span className = "DatePicker-prevBtn arrow" 
+                              onClick   = {this.handleChangeMonth.bind(this,'prev')} />
+                        <div  className = "DatePicker-monthsAndYears">
+                            {`${year}年 ${month}月 `}
+                        </div>
+                        <span className = "DatePicker-nextBtn arrow" 
+                              onClick   = {this.handleChangeMonth.bind(this,'next')} />
                     </div>
-                    <div className='DatePicker-weekdays'>
-                        {
-                            this.weeks.map(tag => <div className='DatePicker-weekTag'>{tag}</div>)
-                        }
+                    <div className = 'DatePicker-weekdays'>
+                        {this.weeks.map(tag => {
+                            return <div className = 'DatePicker-weekTag'>
+                                        {tag}
+                                    </div>
+                        })}
                     </div>
-                    <div className='DatePicker-body'>
+                    <div className = 'DatePicker-body'>
                         {this.getMonthBody(year , month)}
                     </div>
                 </div>

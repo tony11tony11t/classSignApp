@@ -36,7 +36,7 @@ export default class GroupSystem extends Component {
         let NowStudentID = studentID || this.state.studentID;
         let NowGroupID   = groupID   || this.state.groupID;
 
-        signInAPI.getStudentRowDate(NowStudentID,NowGroupID).then(studentData => {
+        signInAPI.getStudentDate(NowStudentID,NowGroupID).then(studentData => {
             const {group} = studentData
             studentData.group = {
                 id   : NowGroupID,

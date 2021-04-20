@@ -1,9 +1,10 @@
 import firebase from 'firebase';
-import config from './config';
+import config   from './config';
 
 class FirebaseAPI{
 
     constructor() {
+        //initialize firebase
         if (!firebase.apps.length) {
             this.app = firebase.initializeApp(config);
         } else {
@@ -12,22 +13,59 @@ class FirebaseAPI{
         this.database = this.app.database();
     }
 
-    getClassroomPath    = id        => `/classrooms/${id || ""}/`
-    getUserPath         = username  => `/user/${username || ""}/`
-    getLogPath          = ()        => `/log/`
-    getGroupPath        = idGroup   => `/group/${idGroup || ""}/`
-    getStudentPath      = idGroup   => `${this.getGroupPath()}${idGroup}/student/`
+    /**
+     * Return path of the classroom
+     * @param   {String} id 
+     * @returns {String}
+     */
+    getClassroomPath = id        => `/classrooms/${id || ""}/`
 
-    getData = async (ref,key,filter = {}) => {
-        let result = [];
-        let dbRef = this.database.ref(`${ref}${key || ""}`);
-        let defaultFilter = {
-            orderby : null,
-            lessThan : null,
-            moreThan : null,
-            equalTo : null
-        }
-        filter = Object.assign(defaultFilter , filter);
+    /**
+     * Return path of the user
+     * @param   {String} username 
+     * @returns {String}
+     */
+    getUserPath      = username  => `/user/${username || ""}/`
+
+    /**
+     * Return path of the log
+     * @returns {String}
+     */
+    getLogPath       = ()        => `/log/`
+
+    /**
+     * Return path of the group
+     * @param   {String} idGroup 
+     * @returns {String}
+     */
+    getGroupPath     = idGroup   => `/group/${idGroup || ""}/`
+
+    /**
+     * Return path of the specified student
+     * @param   {String} idGroup 
+     * @returns {String}
+     */
+    getStudentPath   = idGroup   => `${this.getGroupPath()}${idGroup}/student/`
+
+    /**
+     * Return the specified data from the firebase
+     * @param   {String} path data path
+     * @param   {String} key specified data key or id
+     * @param   {Object} filter the rules of getting data, four conditions can be chosen
+     * @returns {Array}
+     */
+    getData = async (path , key , filter = {}) => {
+
+        let result  = [];
+        let dbRef   = this.database.ref(`${path}${key || ""}`);
+
+        filter = {
+            orderby     : null,
+            lessThan    : null,
+            moreThan    : null,
+            equalTo     : null,
+            ...filter
+        };
 
         if(filter.lessThan){
             dbRef = dbRef.endAt(filter.lessThan);
@@ -40,35 +78,51 @@ class FirebaseAPI{
         }
         if(filter.orderby){
             dbRef = dbRef.orderByChild(filter.orderby);
-            await dbRef.once("value", e =>{
-                e.forEach(el => {
-                    result.push({...el.val() , id : el.key});
+            await dbRef.once("value", allData => {
+                allData.forEach(data => {
+                    result.push({...data.val() , id : data.key});
                 });
             });
         }else{
-            await dbRef.once("value", e => {
-                result = e.val()
+            await dbRef.once("value", allData => {
+                result = allData.val()
             });
         }
         return result;
     }
 
-    postData = async (ref , data , set = false) => {
-        if(set){
-            await this.database.ref(ref).set(data);
-        }else{
-            await this.database.ref(ref).push(data);
-        }
+    /**
+     * Post data to firebase
+     * @param   {String}  path data path
+     * @param   {String}  key  specified data key or id
+     * @param   {boolean} set if true, use the set function to post data, the set function will not auto-generate the id
+     */
+    postData = async (path , data , set = false) => {
+
+        let ref = this.database.ref(path);
+
+        return await set ? ref.set(data) : ref.push(data);
+
     }
 
-    updateData = (ref , key , data) => {
-        this.database.ref(`${ref}${key || ""}`).update(data);
+    /**
+     * Update data and post to firebase
+     * @param  {String}  path data path
+     * @param  {String}  key  specified data key or id
+     * @param  {Object}  data data that has been updated
+     */
+    updateData = (path , key , data) => {
+        this.database.ref(`${path}${key || ""}`).update(data);
     }
 
-    removeData = (ref , key) => {
-        this.database.ref(`${ref}${key || ""}`).remove();
+    /**
+     * Remove data from the firebase
+     * @param  {String}  path data path
+     * @param  {String}  key  specified data key or id
+     */
+    removeData = (path , key) => {
+        this.database.ref(`${path}${key || ""}`).remove();
     }
-
 }
 
 export default new FirebaseAPI()

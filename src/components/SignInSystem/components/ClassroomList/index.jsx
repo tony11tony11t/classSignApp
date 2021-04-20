@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import signInAPI from '../../../../signInAPI'
+import {v4 as uuidv4}       from "uuid"
+import signInAPI            from '../../../../signInAPI'
 import './index.css'
 
 export default class ClassroomList extends Component {
@@ -7,15 +8,25 @@ export default class ClassroomList extends Component {
     state = {
         classrooms : []
     }
+
     componentDidMount = () => {
+        //Loading classrooms list
         signInAPI.getClassroomsRowData().then(list => {
-            this.setState({classrooms : list[0].data})
+            this.setState({
+                classrooms : list[0].data
+            })
         })
     }
 
-    getClassName = (data) => {
+    /**
+     * Return class name for class list component
+     * @param   {Object} data classroom information
+     * @returns {String}
+     */
+    getClassName = data => {
         const {markClassroom} = this.props;
-        return `classroom options ${markClassroom && (markClassroom.id === data.id) ? "mark" : ""}`
+        let isMark = () => markClassroom && (markClassroom.id === data.id) ? "mark" : ""
+        return `classroom options ${isMark()}`
     }
 
     render() {
@@ -23,12 +34,22 @@ export default class ClassroomList extends Component {
         return (
             <ul className='classroomList'>
             {
-                classrooms.map( i =>
-                    <li className={this.getClassName(i)} 
-                        onClick={this.props.getClassroom.bind(this,i)}>
-                            {i.name}
-                    </li>
-                )
+                classrooms.map( classroom => {
+                    const {user}     = classroom;
+                    const {username} = signInAPI;
+                    
+                    //if this classroom is authorized to this user
+                    if(user && user.includes(username)){
+                        return (
+                            <li className = {this.getClassName(classroom)} 
+                                onClick   = {this.props.getClassroom.bind(this , classroom)}
+                                key       = {uuidv4()}>
+                                    {classroom.name}
+                            </li>
+                        )
+                    }
+                    return;
+                })
             }
             </ul>
         )

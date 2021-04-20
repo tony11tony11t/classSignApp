@@ -58,7 +58,7 @@ export default class UserSystem extends Component {
                             <tbody>
                                 {
                                     signInAPI.getUserHeadFields().map(field => (
-                                        <tr key={uuidv4}>
+                                        <tr key={uuidv4()}>
                                             <td>{field[0].name}:</td>
                                             <td>{this.state[field[0].className]}</td>
                                         </tr>
