@@ -1,11 +1,16 @@
 import React, { Component } from 'react'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 }     from 'uuid';
 import './index.css'
 
 export default class Header extends Component {
 
+    /**
+     * Return buttons
+     * @returns {Component}
+     */
     showButtons = () => {
         const {buttons} = this.props;
+
         if(buttons){
             if(Array.isArray(buttons)){
                 return buttons.map(btn =>
@@ -25,7 +30,7 @@ export default class Header extends Component {
     }
 
     render() {
-        const {title,name} = this.props
+        const {title , name} = this.props
         return (
             <div className = {`${name}Header SystemHeader`}>
                 <h3>{title}</h3>

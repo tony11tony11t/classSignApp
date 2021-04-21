@@ -1,43 +1,69 @@
 import React, { Component } from 'react'
-import Table from '../Table';
-import ClassroomEdit from './components/ClassroomEdit'
-import Header from '../Header'
-import signInAPI from '../../signInAPI'
+import ClassroomEdit        from './components/ClassroomEdit'
+import Table                from '../Table';
+import Header               from '../Header'
+import signInAPI            from '../../signInAPI'
 import './index.css'
 
 export default class ClassroomSystem extends Component {
 
     state = {
-        page : "index", //"index" | "edit"
+        /**
+         * Decide which component will be shown
+         */
+        page          : "index", //"index" | "edit"
+
+        /**
+         * Save classroom list
+         */
         classroomList : [],
-        classroom : {}
+
+        /**
+         * Save specified classroom information
+         */
+        classroom     : {}
     }
 
     componentDidMount = () => {
+        //Loading classroom list
         signInAPI.getClassroomsRowData().then(classroomList => {
             this.setState({classroomList})
         })
     }
 
+    /**
+     * Change to edit page
+     * @param {String} id 
+     */
     getEdit = id => {
         if(id){
             signInAPI.getClassroomData(id).then(classroom =>{
-                this.setState({classroom , page : "edit"});
+                this.setState({
+                    classroom , 
+                    page    : "edit"
+                });
             });
         }else{
             this.setState({
-                classroom : {},
-                page : "edit"
+                classroom   : {},
+                page        : "edit"
             });
         }
     }
 
+    /**
+     * Change to index
+     */
     getIndex = () => {
         signInAPI.getClassroomsRowData().then(classroomList => {
             this.setState({classroomList , page : "index"})
         })
     }
 
+    /**
+     * Return specified component
+     * @returns {Component}
+     */
     showContent = () => {
         const {page , classroomList , classroom} = this.state;
         
@@ -57,7 +83,10 @@ export default class ClassroomSystem extends Component {
         }
     }
 
-    showAddBtn = () => {
+    /**
+     * Return buttons information
+     */
+    getAddBtn = () => {
         const btn = {
             className : "btnAdd",
             src       : "../img/add.png",
@@ -70,8 +99,10 @@ export default class ClassroomSystem extends Component {
     render() {
         return (
             <div className='ClassroomContainer'>
-                <Header title="教室管理" name="Classroom" buttons={this.showAddBtn()}/>
-                <div className='ClassroomWrap'>
+                <Header title   = "教室管理" 
+                        name    = "Classroom" 
+                        buttons = {this.getAddBtn()}/>
+                <div className = 'ClassroomWrap'>
                     {this.showContent()}
                 </div>
             </div>

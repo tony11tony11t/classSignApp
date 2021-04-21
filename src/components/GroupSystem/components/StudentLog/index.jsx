@@ -1,16 +1,23 @@
 import React, { Component } from 'react'
+import { v4 as uuidv4 }     from 'uuid';
+import ContainerHeader      from '../../../ContainerHeader'
+import Table                from '../../../Table'
+import signInAPI            from '../../../../signInAPI'
 import './index.css'
-import Table from '../../../Table'
-import ContainerHeader from '../../../ContainerHeader'
-import signInAPI from '../../../../signInAPI'
-import { v4 as uuidv4 } from 'uuid';
 
 
 export default class StudentLog extends Component {
     
     state = {
-        record:[],
-        log:[]
+        /**
+         * Save total data for normal and special class
+         */
+        record : [],
+
+        /**
+         * Save log row data
+         */
+        log    : []
     }
 
     componentDidMount = () => {
@@ -18,35 +25,51 @@ export default class StudentLog extends Component {
         this.refreshLogData(data["normalNum"] , data["specialNum"]);
     }
 
-    deleteLog = (id,type) => {
+    /**
+     * Delete log event
+     * @param {String} id student id
+     * @param {String} type class type which was delete
+     */
+    deleteLog = (id , type) => {
         signInAPI.removePersonalLog(id);
 
         const {data : oldData} = this.props
 
-        let normalNum  = type === "一般" ? oldData.normalNum - 1  : oldData.normalNum;
+        let normalNum  = type === "一般" ? oldData.normalNum - 1   : oldData.normalNum;
         let specialNum = type === "特殊" ? oldData.specialNum - 1  : oldData.specialNum;
-        let newData    = Object.assign(oldData , {normalNum,specialNum })
+        let newData    = {
+            ...oldData , 
+            normalNum , 
+            specialNum
+        }
 
         signInAPI.updateStudent(oldData , newData)
-        this.refreshLogData(normalNum,specialNum);
+
+        this.refreshLogData(normalNum , specialNum);
         
     }
 
-    refreshLogData = (normalNum,specialNum) => {
+    /**
+     * Get new recode data and row data of log
+     * @param {Number} normalNum the total number of normal classes
+     * @param {Number} specialNum the total number of special classes
+     */
+    refreshLogData = (normalNum , specialNum) => {
         const {data} = this.props
+
         signInAPI.getPersonalLogRowData(data.id).then(log => this.setState({log}));
         this.setState({record:[{
-            name : "normal",
+            name  : "normal",
             label : "一般點名",
-            time : normalNum
+            time  : normalNum
         },{
-            name : "special",
+            name  : "special",
             label : "特殊點名",
-            time : specialNum
+            time  : specialNum
         },{
-            name : "total",
+            name  : "total",
             label : "總點名",
-            time : normalNum + specialNum
+            time  : normalNum + specialNum
         }]})
     }
 
@@ -62,10 +85,11 @@ export default class StudentLog extends Component {
                 </div>
                 <div className="MyLogTotalWrap">
                     {
-                        this.state.record.map(obj => (
-                            <div className={obj["name"]} key={uuidv4()}>
-                                <p>{obj["label"]}</p>
-                                <p>{obj["time"]}</p>
+                        this.state.record.map(item => (
+                            <div className  = {item["name"]} 
+                                 key        = {uuidv4()}>
+                                <p>{item["label"]}</p>
+                                <p>{item["time"]}</p>
                             </div>
                         ))
                     }

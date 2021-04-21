@@ -7,7 +7,14 @@ import './index.css'
 export default class StudentList extends Component {
 
     state = {
+        /**
+         * Save students list
+         */
         students : [],
+
+        /**
+         * Which group show students list
+         */
         unfoldGroup : null
     }
 

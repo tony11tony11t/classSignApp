@@ -1,28 +1,50 @@
 import React, { Component } from 'react'
-import signInAPI from '../../signInAPI';
-import DatePicker from '../DatePicker'
+import { v4 as uuidv4 }     from 'uuid';
+import signInAPI            from '../../signInAPI';
+import DatePicker           from '../DatePicker'
 import './index.css'
-import { v4 as uuidv4 } from 'uuid';
 
 export default class Form extends Component {
+
     state = {
-        show        : null, // "DatePicker" | "GroupList"
+         /**
+         * Decide which component will be shown
+         */
+        show        : null, // "DatePicker" | "GroupList" | null
+
+        /**
+         * Save the group ist
+         */
         groupList   : [],
+
+        /**
+         * Save the user list
+         */
         userList    : [],
+
+        /**
+         * Save the form data which is user inputs
+         */
         myData      : {},
+
+        /**
+         * Whether or not user can submit form
+         */
         submitEvent : true
     }
 
     constructor(props){
         super(props);
 
-        //確認是否有資料傳入
+       
         const {data} = this.props
 
+        //Whether or not property has data
         if(data && Object.keys(data).length){
-            //如果有，將資料設定為state的資料
+            //if true , set data to the state
             this.state.myData = {...this.props.data};
         }else{
+            //if false , initialize the data of the field
             const {field} = this.props;
             field.forEach(obj => {
                 switch(obj["type"]){
@@ -42,7 +64,11 @@ export default class Form extends Component {
         }
     }
 
+    /**
+     * initialize the student form
+     */
     initStudentForm = () => {
+        //Loading group list
         let groupList = [];
         signInAPI.getGroupRowData().then(list => {
             list.forEach(item => {
@@ -54,7 +80,7 @@ export default class Form extends Component {
             this.setState({groupList});
         })
 
-        //如果資料有startDate屬性，改寫他
+        //Set start date
         const {myData} = this.state;
         if(!myData.startDate){
             this.updateMyData({
@@ -63,7 +89,11 @@ export default class Form extends Component {
         }
     }
 
+    /**
+     * initialize the classroom form
+     */
     initClassroomForm = () => {
+        //Loading user list
         let userList = [];
         signInAPI.getUserRowData().then(list => {
             list[0].data.forEach(item => {
@@ -94,6 +124,11 @@ export default class Form extends Component {
         }
     }
 
+    /**
+     * Update my data of the state
+     * @param {Object} newData 
+     * @param {Object} otherData 
+     */
     updateMyData = (newData = {} , otherData = {}) => {
         this.setState({myData : {
             ...this.state.myData,
@@ -101,6 +136,10 @@ export default class Form extends Component {
         } , ...otherData})
     }
 
+    /**
+     * Set the date to the state
+     * @param {String} date 
+     */
     getDate = date => {
         this.updateMyData({
             startDate : date,
@@ -109,6 +148,10 @@ export default class Form extends Component {
         })
     }
 
+    /**
+     * Set the value of specified field to the state
+     * @param {Event} e event
+     */
     getFieldData = e => {
         this.updateMyData({
             [e.target.name] : e.target.value
@@ -116,12 +159,21 @@ export default class Form extends Component {
             showTips        : false
         })
     }
+
+    /**
+     * Set the value of checkbox to the state
+     * @param {Event} e event
+     */
     getCheckBoxData = e => {
         this.updateMyData({
             [e.target.value] : e.target.checked
         })
     }
 
+    /**
+     * Set group data to the state
+     * @param {Object} data group data
+     */
     getGroup = data => {
         if(data){
             this.updateMyData({
@@ -141,15 +193,20 @@ export default class Form extends Component {
         }
     }
 
-    showOptions = name => {
-        this.setState({
-            show : this.state.show === name ? null : name
-        });
-    }
+    /**
+     * Change component for the state
+     * @param {String} name  component name
+     */
+    showOptions = name => this.setState({show : this.state.show === name ? null : name});
+    
 
+    /**
+     * Return the fields and input box
+     * @returns 
+     */
     showFields = () => {
-        const {field}             = this.props;
-        const {myData    , show}  = this.state;
+        const {field}                    = this.props;
+        const {myData    , show}         = this.state;
         const {startDate , group , user} = this.state.myData;
 
         return field.map(obj => {
@@ -271,7 +328,12 @@ export default class Form extends Component {
             )
         })
     }
-    getUser = (user) => {
+
+    /**
+     * Set users to the state
+     * @param {Object} user users list
+     */
+    getUser = user => {
         const {user : userList} = this.state.myData;
         const {id} = user;
         if(userList.has(id)){
@@ -284,78 +346,104 @@ export default class Form extends Component {
         })
     }
 
+    /**
+     * Return the component of user list
+     * @param   {String} show  component name
+     * @param   {String} fieldName field name
+     * @returns {Component}
+     */
     showUserList = (show , fieldName) => {
         if(show !== "UserList" || fieldName !== "user")
             return;
 
         const {userList} = this.state;
         return (
-            <React.Fragment>
-                <ul>
-                {
-                    userList.map(data => 
-                        <li key     = {uuidv4()} 
-                            onClick = {this.getUser.bind(this,data)}>
-                            {data.id}
-                        </li>
-                    )
-                }
-                </ul>
-            </React.Fragment>
+            <ul>
+            {
+                userList.map(data => 
+                    <li key     = {uuidv4()} 
+                        onClick = {this.getUser.bind(this,data)}>
+                        {data.id}
+                    </li>
+                )
+            }
+            </ul>
         )
     }
 
+    /**
+     * Return the component of DatePicker
+     * @param   {String} show component name
+     * @param   {String} fieldName field name
+     * @returns {Component}
+     */
     showDatePicker = (show , fieldName) => {
         if(show !== "DatePicker" || fieldName !== "startDate")
             return;
 
         const {startDate} = this.state.myData;
-        return <DatePicker getDate={this.getDate} date={startDate}/>
+        return <DatePicker getDate = {this.getDate} 
+                           date    = {startDate}/>
     }
-     
+    
+    /**
+     * Return the component of group list
+     * @param   {String} show component name
+     * @param   {String} fieldName field name
+     * @returns {Component}
+     */
     showGroupList = (show , fieldName) => {
         if(show !== "GroupList" || fieldName !== "group" )
             return;
 
         const {groupList} = this.state;
         return (
-            <React.Fragment>
-                <ul>
-                {
-                    groupList.map(data => 
-                        <li key     = {uuidv4()} 
-                            onClick = {this.getGroup.bind(this,data)}>
-                            {data.name}
-                        </li>
-                    )
-                }
-                    <div className="newGroup">
-                        <input placeholder  = "輸入新組別" 
-                               value        = {this.state.tempGroup} 
-                               onChange     = {this.tempSaveGroup}/>
-                        <button onClick = {this.getGroup.bind(this,null)}>
-                            確定
-                        </button>
-                    </div>
-                </ul>
-            </React.Fragment>
+            <ul>
+            {
+                groupList.map(data => 
+                    <li key     = {uuidv4()} 
+                        onClick = {this.getGroup.bind(this,data)}>
+                        {data.name}
+                    </li>
+                )
+            }
+                <div className="newGroup">
+                    <input placeholder   = "輸入新組別" 
+                            value        = {this.state.tempGroup} 
+                            onChange     = {this.tempSaveGroup}/>
+                    <button onClick = {this.getGroup.bind(this , null)}>
+                        確定
+                    </button>
+                </div>
+            </ul>
         )
     }
 
-    tempSaveGroup = e => {
-        this.setState({tempGroup : e.target.value})
-    }
+    /**
+     * Save the temp group name
+     * @param {Event} e event 
+     */
+    tempSaveGroup = e => this.setState({tempGroup : e.target.value});
 
+    /**
+     * Return the remove button
+     * @returns {Component}
+     */
     showRemoveBtn = () => {
         const {remove , subject} = this.props;
         var onClick;
-        if(subject === "classroom"){
-            var {id : classroomId} = this.state.myData;
-            onClick = remove.bind(this,classroomId);
-        }else if(subject === "student"){
-            var {id : studentId} = this.state.myData;
-            var {id : groupId}   = this.state.myData.group;
-            onClick = remove.bind(this,studentId,groupId);
+
+        switch(subject){
+            case "classroom" :
+                var {id : classroomId} = this.state.myData;
+                onClick = remove.bind(this , classroomId);
+                break;
+            case "student" : 
+                var {id : studentId} = this.state.myData;
+                var {id : groupId}   = this.state.myData.group;
+                onClick = remove.bind(this , studentId , groupId);
+                break;
+            default:break;
         }
 
         return <button type         = "button" 
@@ -365,17 +453,24 @@ export default class Form extends Component {
                 </button>
     }
 
+    /**
+     * Return submit button
+     * @returns {Component}
+     */
     showSubmitBtn = () => {
 
         const {submitEvent} = this.state;
         
+        /**
+         * Submit event for the submit button
+         * @returns {Function | null}
+         */
         let submit = () => {
             const {myData} = this.state;
             const {submit} = this.props;
 
-            this.setState({submitEvent : false});
-
             if(this.checkField()){
+                this.setState({submitEvent : false});
                 return submit.bind(this,myData)()
             }else{
                 this.setState({showTips : true})
@@ -390,15 +485,14 @@ export default class Form extends Component {
                 </button>
     }
 
+    /**
+     * Whether or not each field has value
+     * @returns {Boolean}
+     */
     checkField = () => {
         const {myData} = this.state
-        let result     = true;
-        Object.keys(myData).forEach(field => {
-            if(myData[field] === ""){
-                result = false;
-            }
-        })
-        return result;
+    
+        return Object.keys(myData).every(field => myData[field] !== "");
     }
 
     render() {

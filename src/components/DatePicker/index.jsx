@@ -8,8 +8,10 @@ export default class DatePicker extends Component {
 
     constructor(props){
         super(props);
+
         const {date} = this.props;
         
+        //whether or not send the date to DatePicker
         if(date){
             let dateBlock = date.split("-");
             this.state = {
@@ -27,35 +29,65 @@ export default class DatePicker extends Component {
         }
     }
 
-
-
-    getMonthDaysCount = (years , month) => {
-        var monthDay   = [31,28,31,30,31,30,31,31,30,31,30,31];
-        var isLeapYear = () => (years % 400 === 0) || (years % 4 === 0 && years % 100 !== 0);
+    /**
+     * Return how many days are there in specified month
+     * @param   {Number} year
+     * @param   {Number} month 
+     * @returns {Number}
+     */
+    getMonthDaysCount = (year , month) => {
+        var monthDay   = [31 , 28 , 31 , 30 , 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31];
+        /**
+         * Whether or not this year is leap year
+         * @returns {Boolean}
+         */
+        var isLeapYear = () => (year % 400 === 0) || (year % 4 === 0 && year % 100 !== 0);
 
         return (month === 2 && isLeapYear()) ? 29 : monthDay[month - 1]
     }
+
+    /**
+     * Return what day of the week
+     * @param   {Number} year 
+     * @param   {Number} month 
+     * @param   {Number} day 
+     * @returns {Number}
+     */
     getWeek = (year , month , day) => new Date(year , month - 1 , day).getDay();
 
-    getMonthBody = (year,month) => {
+    /**
+     * Return the component of this month body
+     * @param   {Number} year 
+     * @param   {Number} month 
+     * @returns {Array}
+     */
+    getMonthBody = (year , month) => {
         var dayCount = this.getMonthDaysCount(year , month);
         var space    = this.getWeek(year , month , 1);
         var spaceEnd = 7 - (dayCount + space) % 7;
-
-        var isPick   = d => this.state.day === d ? 'pick' : '';
-
         var result   = [];
         var body     = [...Array(space).fill("") , 
                         ...Array.from({length : dayCount} , (_ , i)=> i + 1) ,
                         ...Array(spaceEnd).fill("")];
 
+        /**
+         * Whether or not this day be clicked
+         * @param {Number} d day
+         * @returns {String}
+         */
+        var isPick   = d => this.state.day === d ? 'pick' : '';
+
+        /**
+         * Whether or not this day can be clicked
+         * @param {Number} d day
+         * @returns {String}
+         */
         var isSelect = d => {
             const {year , month} = this.state;
-            if(new Date().getTime() < new Date(year , month - 1 , d).getTime()){
-                return false
-            }
-            return true
+            return new Date().getTime() >= new Date(year , month - 1 , d).getTime()
         }
+
+
         for(let i = 0 ; i < Math.ceil(body.length / 7) ; i++){
             result.push(
                 <div className='DatePicker-dateRow'>
@@ -73,6 +105,11 @@ export default class DatePicker extends Component {
         }
         return result;
     }
+
+    /**
+     * Change current year or month in the state
+     * @param {String} action choose next month or previous month
+     */
     handleChangeMonth = (action) => {
         const {month , year} = this.state;
 
@@ -94,7 +131,11 @@ export default class DatePicker extends Component {
             default : break;
         }
     }
-    handleClickDay = (day) => {
+    /**
+     * Set the date for the state
+     * @param {Number} day 
+     */
+    handleClickDay = day => {
         this.setState({day});
         if(this.props.getDate){  
             let {year , month} = this.state;

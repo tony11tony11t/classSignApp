@@ -1,17 +1,22 @@
 import React, { Component } from 'react'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 }     from 'uuid';
 
 export default class TableHead extends Component {
 
+    /**
+     * Return table fields head to the table 
+     * @returns  {Array}
+     */
     showField = () => {
-        const {fields} = this.props;
+        const {fields}  = this.props;
         let fieldsDepth = Math.max(...(fields.map(arr => arr.length)));
-        let result = [];
+        let result      = [];
+
         for(let i = 0 ; i < fieldsDepth ; i++){
             result.push(
                 <tr key = {uuidv4()}>
                     {
-                        fields.map(arr =>{
+                        fields.map(arr => {
                             if(arr[i]){
                                 const {className , rowSpan , colSpan , width , name} = arr[i]
                                 return <th  key         = {uuidv4()}

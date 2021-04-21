@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
-import ContainerHeader from "../../../ContainerHeader"
-import Form from '../../../Form'
-import signInAPI from "../../../../signInAPI"
+import ContainerHeader      from "../../../ContainerHeader"
+import Form                 from '../../../Form'
+import signInAPI            from "../../../../signInAPI"
 import './index.css'
 
 export default class NewUser extends Component {
 
+    /**
+     * Event for submit button
+     * @param {Object} data 
+     */
     submit = data => {
         const {userList} = this.props;
         signInAPI.postUser(data).then(_ =>userList());

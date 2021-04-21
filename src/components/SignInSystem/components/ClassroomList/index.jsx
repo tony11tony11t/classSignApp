@@ -6,6 +6,9 @@ import './index.css'
 export default class ClassroomList extends Component {
 
     state = {
+        /**
+         * Save classrooms list
+         */
         classrooms : []
     }
 

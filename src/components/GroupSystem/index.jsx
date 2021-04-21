@@ -1,31 +1,55 @@
 import React, { Component } from 'react'
+import Search               from './components/Search'
+import StudentInfo          from './components/StudentInfo'
+import StudentForm          from './components/StudentForm'
+import StudentLog           from './components/StudentLog'
+import Table                from '../Table'
+import Header               from '../Header'
+import signInAPI            from '../../signInAPI'
 import './index.css'
-import Table from '../Table';
-import Search from './components/Search'
-import StudentInfo from './components/StudentInfo'
-import StudentForm from './components/StudentForm'
-import StudentLog from './components/StudentLog'
-import signInAPI from '../../signInAPI'
-import Header from '../Header'
 
 export default class GroupSystem extends Component {
     
     state = {
-        page : "index", // "index" | "info" | "edit" | "log" | "new"
-        groupList : [],
+         /**
+         * Decide which component will be shown
+         */
+        page        : "index", // "index" | "info" | "edit" | "log" | "new"
+
+        /**
+         * Save group list
+         */
+        groupList   : [],
+
+        /**
+         * Save specified student data
+         */
         studentData : {},
-        studentID : null,
-        groupID : null
+
+        /**
+         * Save specified student id
+         */
+        studentID   : null,
+
+        /**
+         * Save specified group id
+         */
+        groupID     : null
     }
 
     componentDidMount = () => {
+        //Loading group data
         signInAPI.getGroupRowData().then(groupList => {
             this.setState({groupList})
         })
     }
 
-    getInfo = (studentID,groupID) => {
-        
+    /**
+     * Set the student data for the state and change to information page
+     * @param {String} studentID 
+     * @param {String} groupID 
+     */
+    getInfo = (studentID , groupID) => {
         if(typeof studentID === "string" && typeof groupID === "string"){
             this.setState({studentID , groupID});
         }else{
@@ -48,23 +72,46 @@ export default class GroupSystem extends Component {
         
     }
 
+    /**
+     * Change to index and reload group data
+     */
     getIndex = () => {
         signInAPI.getGroupRowData().then(groupList => {
-            this.setState({groupList})
+            this.updateGroupList(groupList);
             signInAPI.getPage(this , "index")
         })
     };
 
+    /**
+     * Change to edit page
+     */
     getEdit = () => signInAPI.getPage(this , "edit");
+
+    /**
+     * Change to log page 
+     */
     getLog  = () => signInAPI.getPage(this , "log" );
+
+    /**
+     * Change to new page 
+     */
     getNew  = () => signInAPI.getPage(this , "new" );
 
-    updateMoney = () => {
-        signInAPI.updateAllStudentMoney().then(_ => this.getIndex());
-    }
+    /**
+     * Update all students money field in information
+     */
+    updateMoney = () => signInAPI.updateAllStudentMoney().then(_ => this.getIndex());
 
+    /**
+     * Update group list for the state
+     * @param {Object} groupList 
+     */
     updateGroupList = groupList => this.setState({groupList})
 
+    /**
+     * Return specified component
+     * @returns {Component}
+     */
     showContent = () => {
         const {page , groupList , studentData} = this.state;
 
@@ -72,7 +119,7 @@ export default class GroupSystem extends Component {
             case "index" : 
                 return (
                     <>
-                    <Search search={this.updateGroupList}/>
+                    <Search search      = {this.updateGroupList}/>
                     <Table  rowData     = {groupList} 
                             fields      = {signInAPI.getGroupHeadFields()} 
                             className   = "GroupTable"
@@ -85,37 +132,46 @@ export default class GroupSystem extends Component {
                                     showLog  = {this.getLog}
                                     data     = {studentData}/>
             case "edit" :
-                return <StudentForm back={this.getInfo} index={this.getIndex} data={studentData}/>
+                return <StudentForm back     = {this.getInfo} 
+                                    index    = {this.getIndex} 
+                                    data     = {studentData}/>
             case "new" :
-                return <StudentForm back={this.getIndex} data={{}}/>
+                return <StudentForm back     = {this.getIndex} 
+                                    data     = {{}}/>
             case "log" :
-                return <StudentLog back={this.getInfo} data={studentData}/>;
+                return <StudentLog back      = {this.getInfo} 
+                                   data      = {studentData}/>;
             default : break;
         }
     }
 
-    showBtn = () => {
-        const btn = [
+    /**
+     * Return buttons information
+     * @returns {Object}
+     */
+    getBtn = () => {
+        const {page} = this.state;
+        const btn    = [
             {
-                src : "../img/group_navbar_adduser.png",
-                className : "addUser",
-                onClick : this.getNew
+                src         : "../img/group_navbar_adduser.png",
+                className   : "addUser",
+                onClick     : this.getNew
             },{
-                src : "../img/group_navbar_money.png",
-                className : "money",
-                onClick : this.updateMoney
+                src         : "../img/group_navbar_money.png",
+                className   : "money",
+                onClick     : this.updateMoney
             }
         ]
-        const {page} = this.state;
         return page === "index" ? btn : null;
     }
 
     render() {
-        
         return (
             <div className='GroupContainer'>
-                <Header title="學員管理" name="Group" buttons={this.showBtn()}/>          
-                <div className='GroupWrap'>
+                <Header title   = "學員管理" 
+                        name    = "Group" 
+                        buttons = {this.getBtn()}/>
+                <div className  = 'GroupWrap'>
                     {this.showContent()}
                 </div>
             </div>

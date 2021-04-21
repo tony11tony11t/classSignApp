@@ -1,11 +1,17 @@
 import React, { Component } from 'react'
-import TableHead from './components/TableHead'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 }     from 'uuid';
+import TableHead            from './components/TableHead'
 
 import './index.css'
 
 export default class Table extends Component {
-    showDivide = (content) => {
+
+    /**
+     * Return the divide component
+     * @param {String} content divide content of table data
+     * @returns {Component}
+     */
+    showDivide = content => {
         if(content == null) return;
         
         return (
@@ -17,34 +23,51 @@ export default class Table extends Component {
             </tr>
         )
     }
-    showRowData = (obj) => {
+
+    /**
+     * Return the row data component
+     * @param {Object} obj 
+     * @returns {Component}
+     */
+    showRowData = (data) => {
         const {showInfo} = this.props;
 
+        /**
+         * Return the click function for table row
+         * @returns {Event}
+         */
         let onClickEvent = () => {
             if(showInfo){
-                return showInfo.bind(this,obj["id"],obj["idGroup"])
+                return showInfo.bind(this , data["id"] , data["idGroup"])
             }
         }
+
         return (
             <tr className = {`Row ${showInfo ? "Clickable" : ""}`} 
                 onClick   = {onClickEvent()} 
                 key       = {uuidv4()}>
             {
-                Object.keys(obj).map(k => {
+                Object.keys(data).map(k => {
+                    //if the key has a string which is called "id",not to show
                     if(!k.includes("id")){
                         return <td key = {uuidv4()}>
-                                    {this.transfromValue(obj[k])}
+                                    {this.transfromValue(data[k])}
                                 </td>
                     }
                     return null;
                 })
             }
-            {this.getDeleteBtn(obj)}
+            {this.showDeleteBtn(data)}
             </tr>
         )
     }
 
-    transfromValue = (v) => {
+    /**
+     * Change string if it conforms to some condition
+     * @param   {String} v data of table row 
+     * @returns {String}
+     */
+    transfromValue = v => {
         if(typeof v === "boolean"){
             return v ? "O" : ""
         }else if(v === "true"){
@@ -56,14 +79,20 @@ export default class Table extends Component {
         }
     }
 
-    getDeleteBtn = obj => {
-        const {fields,deleteLog} = this.props
+    /**
+     * Return delete button when the table has to delete action
+     * @param {Object} data table row data
+     * @returns {Component}
+     */
+    showDeleteBtn = data => {
+        const {fields , deleteLog} = this.props
+
         if(fields.find(field => field[0] && field[0].className === "delete")){
             return (
                 <td>
                     <img src     = "../img/global_btn_close.png" 
                          alt     = "delete" 
-                         onClick = {deleteLog.bind(this,obj["id"],obj["type"])}/>
+                         onClick = {deleteLog.bind(this , data["id"] , data["type"])}/>
                 </td>
             )
         }
@@ -72,13 +101,13 @@ export default class Table extends Component {
     render() {
         const {className , fields , rowData} = this.props
         return (
-            <table className = {`Table ${className}`} key = {uuidv4()}>
-                <TableHead fields={fields} key = {uuidv4()}/>
-                <tbody key = {uuidv4()}>
+            <table className = {`Table ${className}`}>
+                <TableHead fields = {fields}/>     
+                <tbody>
                 {
                     rowData.map(obj => {
                         return(
-                            <React.Fragment key={uuidv4()}>
+                            <React.Fragment key = {uuidv4()}>
                                 {this.showDivide(obj["content"])}
                                 {obj["data"].map(data => this.showRowData(data))}
                             </React.Fragment>

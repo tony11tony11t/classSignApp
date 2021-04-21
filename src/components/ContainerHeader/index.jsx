@@ -2,8 +2,14 @@ import React, { Component } from 'react'
 import './index.css'
 
 export default class ContainerHeader extends Component {
+
+    /**
+     * Return buttons
+     * @returns {Component}
+     */
     showButtons = () => {
         const {buttons} = this.props;
+        
         if(buttons !== undefined){
             if(typeof buttons === Array){
                 return buttons.map(btn =>
